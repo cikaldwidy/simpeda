@@ -11,15 +11,29 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
-        });
+       Schema::create('users', function (Blueprint $table) {
+        $table->id();
+
+        $table->string('name');                 // nama lengkap
+        $table->string('email')->unique();
+
+        $table->string('nik', 16)->unique();    // login pakai ini
+        $table->string('no_hp', 20);
+        $table->text('alamat');
+
+        // dropdown 2 pilihan: pending / approved
+        $table->enum('approval_status', ['pending', 'approved'])->default('pending');
+
+        // opsional (buat catatan siapa & kapan approve)
+        $table->timestamp('approved_at')->nullable();
+        $table->unsignedBigInteger('approved_by')->nullable();
+
+        $table->timestamp('email_verified_at')->nullable();
+        $table->string('password');
+        $table->rememberToken();
+        $table->timestamps();
+    });
+
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();

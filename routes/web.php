@@ -1,33 +1,27 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
-Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', function (Request $request) {
-        $user = $request->user();
 
-        if (! $user) {
-            return redirect()->route('login');
-        }
-        return match ($user->role) {
-            'admin'   => redirect()->route('admin.dashboard'),
-            'petugas' => redirect()->route('petugas.dashboard'),
-            'warga'   => redirect()->route('warga.dashboard'),
-            default   => abort(403, 'Role tidak dikenali.'),
-        };
-    })->name('dashboard');
-    Route::middleware('role:admin')->group(function () {
-        Route::get('/admin', fn () => view('admin.dashboard'))->name('admin.dashboard');
-    });
+Route::get('/menunggu-persetujuan', fn () => view('auth.pending'))
+    ->middleware('auth')
+    ->name('account.pending');
 
-    Route::middleware('role:petugas')->group(function () {
-        Route::get('/petugas', fn () => view('petugas.dashboard'))->name('petugas.dashboard');
-    });
-    Route::middleware('role:warga')->group(function () {
-        Route::get('/warga', fn () => view('warga.dashboard'))->name('warga.dashboard');
-    });
+// Hanya user yang sudah login + sudah disetujui
+Route::middleware(['auth', 'approved'])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->middleware('verified') // opsional (boleh dihapus kalau nggak perlu verifikasi email)
+      ->name('dashboard');
+
+    // Profile (kalau kamu ingin hanya user approved yang bisa akses profile)
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+require __DIR__.'/auth.php';
