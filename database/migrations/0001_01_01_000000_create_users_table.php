@@ -11,29 +11,43 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('users', function (Blueprint $table) {
-        $table->id();
+      Schema::create('users', function (Blueprint $table) {
+            $table->id();
 
-        $table->string('name');                 // nama lengkap
-        $table->string('email')->unique();
+            $table->string('name');                 // nama lengkap
+            $table->string('email')->unique();
 
-        $table->string('nik', 16)->unique();    // login pakai ini
-        $table->string('no_hp', 20);
-        $table->text('alamat');
+            // pilihan: laki-laki / perempuan
+            $table->enum('jenis_kelamin', ['laki-laki', 'perempuan'])->nullable();
 
-        // dropdown 2 pilihan: pending / approved
-        $table->enum('approval_status', ['pending', 'approved'])->default('pending');
+            $table->string('nik', 16)->unique();    // login pakai 
+            $table->string('no_hp', 20);
 
-        // opsional (buat catatan siapa & kapan approve)
-        $table->timestamp('approved_at')->nullable();
-        $table->unsignedBigInteger('approved_by')->nullable();
+            // ====== WILAYAH INDONESIA (ID dari dropdown) ======
+            $table->string('provinsi_id', 10)->nullable();
+            $table->string('kabupaten_id', 10)->nullable();
+            $table->string('kecamatan_id', 15)->nullable();
+            $table->string('desa_id', 20)->nullable();
+              // opsional (lebih rapi)
+            $table->string('rt/rw', 7)->nullable();
+            $table->string('kode_pos', 10)->nullable();
 
-        $table->timestamp('email_verified_at')->nullable();
-        $table->string('password');
-        $table->rememberToken();
-        $table->timestamps();
-    });
+            // detail alamat manual (jalan/dusun/RT/RW/patokan)
+            $table->text('alamat_detail')->nullable();
 
+
+            // dropdown 2 pilihan: pending / approved
+            $table->enum('approval_status', ['pending', 'approved'])->default('pending');
+
+            // opsional (buat catatan siapa & kapan approve)
+            $table->timestamp('approved_at')->nullable();
+            $table->unsignedBigInteger('approved_by')->nullable();
+
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->rememberToken();
+            $table->timestamps();
+        });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();

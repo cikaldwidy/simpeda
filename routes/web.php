@@ -2,14 +2,80 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\HeroSlideController;
+use App\Models\HeroSlide;
+
+Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+    Route::resource('hero-slides', HeroSlideController::class);
+});
 
 Route::get('/', function () {
-    return view('welcome');
+    $heroSlides = HeroSlide::where('is_active', true)
+        ->orderBy('sort_order')
+        ->get();
+
+    return view('landing.index', compact('heroSlides'));
 });
 
 Route::get('/menunggu-persetujuan', fn () => view('auth.pending'))
     ->middleware('auth')
     ->name('account.pending');
+
+if (! function_exists('fetchWilayah')) {
+    function fetchWilayah(string $url): array
+    {
+        $context = stream_context_create([
+            'http' => [
+                'timeout' => 10,
+            ],
+        ]);
+
+        $body = @file_get_contents($url, false, $context);
+        if ($body === false) {
+            return ['data' => []];
+        }
+
+        return json_decode($body, true) ?? ['data' => []];
+    }
+}
+
+Route::prefix('wilayah')->group(function () {
+    Route::get('/provinces', function () {
+        $data = fetchWilayah('https://wilayah.id/api/provinces.json');
+        if (empty($data['data'])) {
+            return response()->json(['data' => []], 502);
+        }
+
+        return response()->json($data);
+    });
+
+    Route::get('/regencies/{province}', function (string $province) {
+        $data = fetchWilayah("https://wilayah.id/api/regencies/{$province}.json");
+        if (empty($data['data'])) {
+            return response()->json(['data' => []], 502);
+        }
+
+        return response()->json($data);
+    });
+
+    Route::get('/districts/{regency}', function (string $regency) {
+        $data = fetchWilayah("https://wilayah.id/api/districts/{$regency}.json");
+        if (empty($data['data'])) {
+            return response()->json(['data' => []], 502);
+        }
+
+        return response()->json($data);
+    });
+
+    Route::get('/villages/{district}', function (string $district) {
+        $data = fetchWilayah("https://wilayah.id/api/villages/{$district}.json");
+        if (empty($data['data'])) {
+            return response()->json(['data' => []], 502);
+        }
+
+        return response()->json($data);
+    });
+});
 
 // Hanya user yang sudah login + sudah disetujui
 Route::middleware(['auth', 'approved'])->group(function () {
