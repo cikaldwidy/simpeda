@@ -1,0 +1,163 @@
+.nav-base {
+    background: transparent;
+    transition:
+        background 0.25s ease,
+        box-shadow 0.25s ease,
+        backdrop-filter 0.25s ease;
+}
+
+/* Saat scroll: jadi hitam */
+.nav-base.is-scrolled {
+    background: rgba(0, 0, 0, 0.99);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.nav-base.is-scrolled .nav-link,
+.nav-base.is-scrolled #profileBtn,
+.nav-base.is-scrolled #beritaBtn,
+.nav-base.is-scrolled #searchOpen {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.nav-base.is-scrolled #profileBtn:hover {
+    color: #f97316;
+}
+
+.nav-base.is-scrolled #beritaBtn:hover {
+    color: #f97316;
+}
+
+.nav-base.is-scrolled #searchOpen:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.nav-base.is-scrolled .nav-link:hover {
+    color: #f97316;
+}
+
+/* Hover hitam saat belum scroll */
+.nav-base:not(.is-scrolled):hover {
+    background: rgba(0, 0, 0, 0.65);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.dropdown-panel {
+    display: none;
+}
+
+.dropdown.open .dropdown-panel {
+    display: block;
+}
+
+.mobile-panel {
+    display: none;
+}
+
+.mobile-panel.open {
+    display: block;
+}
+
+/* ===== Menu hover underline hijau ===== */
+.nav-link {
+    position: relative;
+    padding-bottom: 4px;
+    transition: color 0.2s ease;
+}
+
+.nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 0;
+    background-color: #f97316;
+    transition: width 0.25s ease;
+}
+
+.nav-link:hover {
+    color: #f97316;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+/* ===== Active state (desktop) ===== */
+.nav-link.is-active {
+    color: #f97316;
+}
+
+.nav-link.is-active::after {
+    width: 100%;
+}
+
+.nav-base.is-scrolled .nav-link.is-active {
+    color: #f97316;
+}
+
+#profileBtn.is-active,
+#beritaBtn.is-active {
+    color: #f97316;
+}
+
+.nav-base.is-scrolled #profileBtn.is-active,
+.nav-base.is-scrolled #beritaBtn.is-active {
+    color: #f97316;
+}
+
+/* ===== Rotasi icon dropdown ===== */
+.dropdown svg {
+    transition: transform 0.25s ease;
+}
+
+.dropdown.open svg {
+    transform: rotate(180deg);
+}
+
+#searchPopup {
+    animation: popupFade 0.18s ease;
+}
+
+@keyframes popupFade {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== Mobile dropdown arrow rotate ===== */
+#mobileFiturBtn[aria-expanded="true"] svg,
+#mobileBeritaBtn[aria-expanded="true"] svg {
+    transform: rotate(180deg);
+}
+
+/* ===== Mobile hover tetap putih ===== */
+@media (max-width: 768px) {
+    .nav-link:hover {
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .nav-link:hover::after {
+        width: 0;
+        /* matikan underline hover di mobile */
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-base.is-scrolled .nav-link {
+        color: rgba(255, 255, 255, 0.5);
+    }
+}
+
+@media (max-width: 768px) {
+    #mobileFiturPanel,
+    #mobileBeritaPanel {
+        transition: all 0.2s ease;
+    }
+}

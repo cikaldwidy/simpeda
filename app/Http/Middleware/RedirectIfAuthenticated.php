@@ -14,6 +14,20 @@ class RedirectIfAuthenticated
     public function handle(Request $request, Closure $next, $guard = null)
     {
         if (Auth::guard($guard)->check()) {
+            $user = Auth::guard($guard)->user();
+
+            if (($user?->role ?? null) === 'petugas') {
+                return redirect()->route('petugas.dashboard');
+            }
+
+            if (($user?->role ?? null) === 'admin') {
+                return redirect()->route('admin.dashboard');
+            }
+
+            if ($user?->approval_status !== 'approved') {
+                return redirect()->route('account.pending');
+            }
+
             return redirect()->route('dashboard');
         }
 

@@ -27,8 +27,21 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+        $request->session()->forget('url.intended');
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        if (($request->user()?->role ?? null) === 'petugas') {
+            return redirect()->route('petugas.dashboard');
+        }
+
+        if (($request->user()?->role ?? null) === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+
+        if ($request->user()?->approval_status !== 'approved') {
+            return redirect()->route('account.pending');
+        }
+
+        return redirect()->route('dashboard');
     }
 
     /**

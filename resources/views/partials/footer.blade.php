@@ -1,42 +1,52 @@
-<footer class="border-t border-emerald-100 bg-white" id="kontak">
-  <div class="mx-auto w-full max-w-6xl px-4 py-10">
-    <div class="grid gap-8 md:grid-cols-2">
-      <div>
-        <div class="flex items-center gap-2 text-emerald-900">
-          <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm">
-            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 4v5c0 4.5-3.1 7.8-7 9-3.9-1.2-7-4.5-7-9V7l7-4z"></path>
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9.5 12l2 2 3-3"></path>
-            </svg>
-          </span>
-          <span class="text-lg font-semibold tracking-wide">Simpeda</span>
+<footer class="bg-black" id="kontak">
+    <div class="mx-auto w-full max-w-6xl px-4 py-8">
+
+        {{-- Social Icons --}}
+        <div class="flex items-center justify-center gap-6 mb-6">
+
+            {{-- Facebook --}}
+            <a href="#" class="text-white hover:text-orange-400 transition-colors duration-200">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
+                </svg>
+            </a>
+
+            {{-- Instagram --}}
+            <a href="#" class="text-white hover:text-orange-400 transition-colors duration-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                    <circle cx="12" cy="12" r="4" />
+                    <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none" />
+                </svg>
+            </a>
+
+            {{-- Twitter / X --}}
+            <a href="#" class="text-white hover:text-orange-400 transition-colors duration-200">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+            </a>
+
+            {{-- YouTube --}}
+            <a href="#" class="text-white hover:text-orange-400 transition-colors duration-200">
+                <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                    aria-hidden="true">
+                    <rect x="2" y="5.5" width="20" height="13" rx="3.2" ry="3.2" />
+                    <polygon points="10,9 16,12 10,15" fill="none" />
+                </svg>
+            </a>
+
+
         </div>
-        <p class="mt-3 text-sm text-emerald-800">Platform layanan desa yang rapi, cepat, dan mudah diakses.</p>
-      </div>
-      <div class="grid gap-6 text-sm text-emerald-800 sm:grid-cols-3">
-        <div>
-          <h4 class="mb-2 font-semibold text-emerald-900">Jelajah</h4>
-          <a class="block hover:text-emerald-700" href="#fitur">Fitur</a>
-          <a class="block hover:text-emerald-700" href="#layanan">Layanan</a>
-          <a class="block hover:text-emerald-700" href="#proses">Proses</a>
+
+        {{-- Divider --}}
+        <div class="border-t border-gray-700 mb-6"></div>
+
+        {{-- Copyright --}}
+        <div class="text-center text-sm font-medium text-white">
+            Pemerintah Desa Wonorejo &copy; 2026
         </div>
-        <div>
-          <h4 class="mb-2 font-semibold text-emerald-900">Dokumen</h4>
-          <a class="block hover:text-emerald-700" href="#">Panduan</a>
-          <a class="block hover:text-emerald-700" href="#">FAQ</a>
-          <a class="block hover:text-emerald-700" href="#">Kebijakan</a>
-        </div>
-        <div>
-          <h4 class="mb-2 font-semibold text-emerald-900">Kontak</h4>
-          <a class="block hover:text-emerald-700" href="mailto:halo@simpeda.id">halo@simpeda.id</a>
-          <a class="block hover:text-emerald-700" href="tel:+620000000000">+62 000 0000 0000</a>
-          <span class="block text-emerald-700">Senin - Jumat, 08.00 - 16.00</span>
-        </div>
-      </div>
+
     </div>
-    <div class="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-emerald-100 pt-4 text-xs text-emerald-700">
-      <span>Copyright 2025 Simpeda. All rights reserved.</span>
-      <span>Berbasis data warga yang akurat.</span>
-    </div>
-  </div>
 </footer>

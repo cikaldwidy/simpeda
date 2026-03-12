@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'dialogflow' => [
+        'project_id' => env('DIALOGFLOW_PROJECT_ID'),
+        'language' => env('DIALOGFLOW_LANGUAGE_CODE', 'id'),
+        'credentials' => env('DIALOGFLOW_CREDENTIALS', env('GOOGLE_APPLICATION_CREDENTIALS')),
+    ],
+
 ];

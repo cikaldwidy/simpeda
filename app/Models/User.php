@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -21,6 +22,10 @@ class User extends Authenticatable
         'jenis_kelamin',
         'nik',
         'no_hp',
+        'tempat_lahir',
+        'tanggal_lahir',
+        'bulan_lahir',
+        'tahun_lahir',
 
         // wilayah
         'provinsi_id',
@@ -28,6 +33,7 @@ class User extends Authenticatable
         'kecamatan_id',
         'desa_id',
         'rt/rw',
+        'dusun',
         'kode_pos',
 
         // detail alamat
@@ -64,5 +70,10 @@ class User extends Authenticatable
             'approved_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function suratPengajuans(): HasMany
+    {
+        return $this->hasMany(SuratPengajuan::class);
     }
 }
