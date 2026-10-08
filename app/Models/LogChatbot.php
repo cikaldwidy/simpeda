@@ -19,7 +19,6 @@ class LogChatbot extends Model
         'jawaban_bot',
         'waktu_interaksi',
         'id_permohonan',
-        'id_faq',
     ];
 
     protected function casts(): array

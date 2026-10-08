@@ -11,7 +11,7 @@ class HeroSlideController extends Controller
 {
     public function index()
     {
-        $slides = HeroSlide::orderBy('sort_order')->get();
+        $slides = HeroSlide::orderBy('sort_order')->paginate(10);
         return view('admin.hero_slides.index', compact('slides'));
     }
 
@@ -83,5 +83,23 @@ class HeroSlideController extends Controller
         $slide->delete();
 
         return redirect()->route('admin.hero-slides.index')->with('success', 'Slide dihapus.');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $data = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['required', 'integer', 'distinct', 'exists:hero_slides,id'],
+        ]);
+
+        $slides = HeroSlide::whereKey($data['ids'])->get();
+
+        foreach ($slides as $slide) {
+            Storage::disk('public')->delete($slide->image_path);
+            $slide->delete();
+        }
+
+        return redirect()->route('admin.hero-slides.index')
+            ->with('success', $slides->count() . ' slide berhasil dihapus.');
     }
 }

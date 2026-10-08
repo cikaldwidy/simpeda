@@ -3,47 +3,34 @@
 @section('title', config('app.name') . ' | Perangkat Desa')
 
 @section('content')
-<section class="min-h-screen bg-slate-100 py-8">
-    <div class="mx-auto w-full max-w-7xl px-4 md:px-6">
-        <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-            <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
-                <div>
-                    <h1 class="text-3xl font-bold text-slate-800 tracking-[1px] md:text-left text-center">Data Perangkat
-                        Desa</h1>
-                    <p class="mt-1 text-base text-slate-600 md:text-left text-center">Kelola data perangkat desa,
-                        jabatan, foto, dan urutan tampilan.</p>
-                </div>
+<div class="space-y-6">
+    <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+        <h1 class="text-3xl font-bold tracking-[1px] text-slate-800">Data Perangkat Desa</h1>
+        <p class="mt-2 text-sm text-slate-600">Kelola data perangkat desa, jabatan, foto, dan urutan tampilan.</p>
+    </div>
 
-            </div>
-
-            @if(session('success'))
-            <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-                {{ session('success') }}
-            </div>
-            @endif
-
-            @if($errors->any())
-            <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                <p class="font-semibold">Gagal menyimpan data:</p>
-                <ul class="mt-1 list-disc pl-5">
-                    @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
-
-            <div class="rounded-md border border-gray-100 bg-white shadow-sm">
-                <div class="mb-4 flex justify-end">
-                    <button type="button" data-open-modal="createPerangkatModal"
-                        class="inline-flex rounded-lg bg-emerald-700 px-4 py-1.5 text-sm font-semibold text-white hover:bg-emerald-600">
-                        + Tambah Data
-                    </button>
-                </div>
-                <div class="w-full max-w-full overflow-x-auto">
-                    <table class="min-w-[980px] w-full">
+    <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="mb-4 flex justify-end">
+            <button type="button" data-open-modal="createPerangkatModal"
+                class="inline-flex items-center justify-center rounded-md bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600">
+                + Tambah Data
+            </button>
+        </div>
+        <div class="rounded-md border border-gray-100 bg-white shadow-sm" data-bulk-selection>
+            @include('partials.admin-bulk-delete-toolbar', [
+                'formId' => 'bulk-delete-perangkat',
+                'action' => route('admin.perangkat.bulk-destroy'),
+                'title' => 'Hapus perangkat desa terpilih?',
+                'message' => 'Data perangkat desa yang dipilih tidak dapat dikembalikan.',
+            ])
+            <div class="w-full max-w-full overflow-x-auto">
+                <table class="min-w-[980px] w-full">
                         <thead>
                             <tr class="bg-gradient-to-r from-slate-800 to-slate-700">
+                                <th data-bulk-selection-cell class="hidden px-4 py-3 text-center">
+                                    <input type="checkbox" data-bulk-select-all disabled aria-label="Pilih semua perangkat di halaman ini"
+                                        class="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-500">
+                                </th>
                                 <th
                                     class="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-[1px] text-white">
                                     Foto</th>
@@ -64,6 +51,11 @@
                         <tbody class="divide-y divide-gray-50">
                             @forelse($perangkat as $item)
                             <tr class="group transition hover:bg-gray-50/50">
+                                <td data-bulk-selection-cell class="hidden px-4 py-4 text-center">
+                                    <input type="checkbox" name="ids[]" value="{{ $item->id }}" form="bulk-delete-perangkat"
+                                        data-bulk-select-row aria-label="Pilih perangkat {{ $item->nama }}"
+                                        class="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-500">
+                                </td>
                                 <td class="px-4 py-4">
                                     <img src="{{ asset('storage/'.$item->foto) }}" alt="{{ $item->nama }}"
                                         class="h-14 w-14 rounded-lg border border-slate-200 object-cover">
@@ -82,7 +74,8 @@
                                         </button>
 
                                         <form action="{{ route('admin.perangkat.destroy', $item->id) }}" method="POST"
-                                            onsubmit="return confirm('Yakin hapus data ini?')">
+                                            data-delete-title="Hapus data perangkat desa?"
+                                            data-delete-message="Data perangkat desa yang dihapus tidak dapat dikembalikan.">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
@@ -96,17 +89,18 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="5" class="px-4 py-12 text-center text-gray-500">Belum ada data perangkat
+                                <td colspan="6" class="px-4 py-12 text-center text-gray-500">Belum ada data perangkat
                                     desa.</td>
                             </tr>
                             @endforelse
                         </tbody>
-                    </table>
-                </div>
+                </table>
             </div>
         </div>
     </div>
-</section>
+
+    @include('partials.admin-pagination-footer', ['paginator' => $perangkat, 'label' => 'perangkat desa'])
+</div>
 
 <div id="createPerangkatModal" class="fixed inset-0 z-[70] hidden items-center justify-center bg-black/50 p-4">
     <div class="w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl">

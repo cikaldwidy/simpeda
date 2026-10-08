@@ -70,8 +70,7 @@
             <div class="hidden">
                 @forelse($statusRows as $item)
                 @php
-                $regDesNomor = '474.1/' . ($item->nomor_urut ?? '-') . '/' . (auth()->user()->desa_id ?? '-') . '/' .
-                ($item->tahun ?? optional($item->tanggal_surat)->format('Y'));
+                $nomorSurat = $item->nomor_surat ?: 'Belum diisi';
                 $statusConfig = match($item->status) {
                 'disetujui' => [
                 'bg' => 'bg-green-50',
@@ -106,7 +105,7 @@
 
                     <p class="mt-3 text-[11px] font-bold uppercase tracking-[1px] text-gray-500">Nomor Surat</p>
                     <p class="mt-1 text-xs font-mono font-medium tracking-[.5px] text-gray-800">
-                        {{ $regDesNomor }}
+                        {{ $nomorSurat }}
                     </p>
 
                     <div class="mt-3 flex items-center justify-between gap-2">
@@ -122,7 +121,8 @@
                                 <span>Detail</span>
                             </a>
                             <form method="POST" action="{{ route('layanan.pengajuan.destroy', $item) }}"
-                                onsubmit="return confirm('Yakin ingin menghapus surat ini?')">
+                                data-delete-title="Hapus pengajuan surat ini?"
+                                data-delete-message="Pengajuan surat yang dihapus tidak dapat dikembalikan.">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
@@ -172,8 +172,7 @@
                     <tbody class="divide-y divide-gray-50">
                         @forelse($statusRows as $item)
                         @php
-                        $regDesNomor = '474.1/' . ($item->nomor_urut ?? '-') . '/' . (auth()->user()->desa_id ?? '-') .
-                        '/' . ($item->tahun ?? optional($item->tanggal_surat)->format('Y'));
+                        $nomorSurat = $item->nomor_surat ?: 'Belum diisi';
                         $statusConfig = match($item->status) {
                         'disetujui' => [
                         'bg' => 'bg-green-50',
@@ -216,7 +215,7 @@
                             </td>
                             <td class="px-2 py-4 sm:px-4">
                                 <span class="text-sm font-medium text-gray-800 tracking-[.5px]">
-                                    {{ $regDesNomor }}
+                                    {{ $nomorSurat }}
                                 </span>
                             </td>
                             <td class="px-2 py-4 sm:px-4">
@@ -234,7 +233,8 @@
                                         <span>Lihat</span>
                                     </a>
                                     <form method="POST" action="{{ route('layanan.pengajuan.destroy', $item) }}"
-                                        onsubmit="return confirm('Yakin ingin menghapus surat ini?')">
+                                        data-delete-title="Hapus pengajuan surat ini?"
+                                        data-delete-message="Pengajuan surat yang dihapus tidak dapat dikembalikan.">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"

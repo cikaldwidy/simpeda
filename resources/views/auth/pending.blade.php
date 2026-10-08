@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.auth')
 
 @section('title', config('app.name') . ' | Status Pendaftaran')
 
@@ -7,12 +7,9 @@
 
 <div class="flex min-h-screen flex-col bg-black">
     <section
-        class="relative flex-1 overflow-hidden bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 pt-24 pb-12 sm:pt-28 sm:pb-16">
-        <div class="pointer-events-none absolute inset-0">
-            <div class="absolute -top-20 left-1/4 h-52 w-52 rounded-full bg-white/10 blur-3xl"></div>
-            <div class="absolute -bottom-24 right-1/4 h-56 w-56 rounded-full bg-gray-300/10 blur-3xl"></div>
-        </div>
-
+        class="relative overflow-hidden pt-24 pb-12 sm:pt-28 sm:pb-16 min-h-screen bg-cover bg-center bg-no-repeat bg-fixed"
+        style="background-image: url({{ asset('img/bg-motif.jpg') }});">
+        <div class="pointer-events-none absolute inset-0 bg-black/50"></div>
         <div class="relative mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
             <div
                 class="mx-auto max-w-3xl rounded-3xl border border-white/10 bg-white/95 p-6 shadow-2xl backdrop-blur sm:p-8">
@@ -34,7 +31,7 @@
 
                 <a href="{{ route('login') }}"
                     class="mt-6 inline-flex text-sm font-medium text-gray-500 transition underline hover:text-orange-500">
-                    Login Sekarang ->
+                    Login Sekarang
                 </a>
                 @else
                 <div class="mb-5 flex items-center gap-3 rounded-xl border border-amber-200/70 bg-amber-50 px-4 py-3">
@@ -66,6 +63,5 @@
             </div>
         </div>
     </section>
-    @include('partials.footer')
 </div>
 @endsection

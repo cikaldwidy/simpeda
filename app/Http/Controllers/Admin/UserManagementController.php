@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
@@ -33,7 +34,7 @@ class UserManagementController extends Controller
             });
         }
 
-        $users = $query->paginate(15)->withQueryString();
+        $users = $query->paginate(10)->withQueryString();
 
         $stats = [
             'total' => User::count(),
@@ -43,13 +44,12 @@ class UserManagementController extends Controller
             'adminPetugas' => User::whereIn('role', ['admin', 'petugas'])->count(),
         ];
 
-        $regionMaps = $this->buildRegionMaps($users->getCollection());
         $users->setCollection(
-            $users->getCollection()->map(function (User $user) use ($regionMaps) {
-                $user->provinsi_display = $this->regionDisplay($user->provinsi_id, $regionMaps['provinsi']);
-                $user->kabupaten_display = $this->regionDisplay($user->kabupaten_id, $regionMaps['kabupaten']);
-                $user->kecamatan_display = $this->regionDisplay($user->kecamatan_id, $regionMaps['kecamatan']);
-                $user->desa_display = $this->regionDisplay($user->desa_id, $regionMaps['desa']);
+            $users->getCollection()->map(function (User $user) {
+                $user->provinsi_display = $this->cleanRegionName((string) ($user->provinsi_id ?? '-'));
+                $user->kabupaten_display = $this->cleanRegionName((string) ($user->kabupaten_id ?? '-'));
+                $user->kecamatan_display = $this->cleanRegionName((string) ($user->kecamatan_id ?? '-'));
+                $user->desa_display = $this->cleanRegionName((string) ($user->desa_id ?? '-'));
                 return $user;
             })
         );
@@ -87,95 +87,27 @@ class UserManagementController extends Controller
         return back()->with('status', 'Status akun pengguna berhasil diperbarui.');
     }
 
-    private function buildRegionMaps($users): array
+    public function resetPassword(Request $request, User $user): RedirectResponse
     {
-        $provinceMap = [];
-        $regencyMap = [];
-        $districtMap = [];
-        $villageMap = [];
+        $currentUser = $request->user();
 
-        $provinceData = $this->fetchWilayah('https://wilayah.id/api/provinces.json');
-        foreach ($provinceData['data'] ?? [] as $item) {
-            if (!empty($item['code']) && !empty($item['name'])) {
-                $provinceMap[(string) $item['code']] = (string) $item['name'];
-            }
+        if (($currentUser?->role ?? null) !== 'admin' && $user->role !== 'warga') {
+            return back()->with('status_error', 'Petugas hanya dapat mereset password akun warga.');
         }
 
-        $provinceCodes = $users->pluck('provinsi_id')->filter()->unique()->values();
-        foreach ($provinceCodes as $provinceCode) {
-            $regencies = $this->fetchWilayah("https://wilayah.id/api/regencies/{$provinceCode}.json");
-            foreach ($regencies['data'] ?? [] as $item) {
-                if (!empty($item['code']) && !empty($item['name'])) {
-                    $regencyMap[(string) $item['code']] = (string) $item['name'];
-                }
-            }
-        }
+        $validated = $request->validate([
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
 
-        $regencyCodes = $users->pluck('kabupaten_id')->filter()->unique()->values();
-        foreach ($regencyCodes as $regencyCode) {
-            $districts = $this->fetchWilayah("https://wilayah.id/api/districts/{$regencyCode}.json");
-            foreach ($districts['data'] ?? [] as $item) {
-                if (!empty($item['code']) && !empty($item['name'])) {
-                    $districtMap[(string) $item['code']] = (string) $item['name'];
-                }
-            }
-        }
+        $user->forceFill([
+            'password' => Hash::make($validated['password']),
+        ])->save();
 
-        $districtCodes = $users->pluck('kecamatan_id')->filter()->unique()->values();
-        foreach ($districtCodes as $districtCode) {
-            $villages = $this->fetchWilayah("https://wilayah.id/api/villages/{$districtCode}.json");
-            foreach ($villages['data'] ?? [] as $item) {
-                if (!empty($item['code']) && !empty($item['name'])) {
-                    $villageMap[(string) $item['code']] = (string) $item['name'];
-                }
-            }
-        }
-
-        return [
-            'provinsi' => $provinceMap,
-            'kabupaten' => $regencyMap,
-            'kecamatan' => $districtMap,
-            'desa' => $villageMap,
-        ];
-    }
-
-    private function regionDisplay(?string $value, array $map): string
-    {
-        if (! $value) {
-            return '-';
-        }
-
-        $raw = trim($value);
-        $name = $map[$raw] ?? null;
-        if ($name) {
-            return $this->cleanRegionName($name);
-        }
-
-        if (preg_match('/[A-Za-z]/', $raw)) {
-            return $this->cleanRegionName($raw);
-        }
-
-        return $raw;
+        return back()->with('status', 'Password pengguna berhasil direset.');
     }
 
     private function cleanRegionName(string $value): string
     {
         return trim((string) preg_replace('/^(Kabupaten|Kota|Provinsi|Kecamatan|Desa)\s+/i', '', $value));
-    }
-
-    private function fetchWilayah(string $url): array
-    {
-        $context = stream_context_create([
-            'http' => [
-                'timeout' => 8,
-            ],
-        ]);
-
-        $body = @file_get_contents($url, false, $context);
-        if ($body === false) {
-            return ['data' => []];
-        }
-
-        return json_decode($body, true) ?? ['data' => []];
     }
 }

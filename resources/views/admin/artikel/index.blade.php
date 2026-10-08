@@ -6,83 +6,65 @@
 @php
 $routePrefix = request()->routeIs('petugas.*') ? 'petugas' : 'admin';
 @endphp
-<section class="min-h-screen bg-slate-100 py-8">
-    <div class="mx-auto w-full max-w-7xl px-4 md:px-6">
-        <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-            <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
-                <div>
-                    <h1 class="text-3xl font-bold tracking-[1px] text-slate-800 md:text-left text-center">Manajemen
-                        Artikel</h1>
-                    <p class="mt-1 text-base text-slate-600 md:text-left text-center">Kelola artikel publik desa dari
-                        satu halaman.</p>
-                </div>
-            </div>
+<div class="space-y-6">
+    <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+        <h1 class="text-3xl font-bold tracking-[1px] text-slate-800">Manajemen Artikel</h1>
+        <p class="mt-2 text-sm text-slate-600">Kelola artikel publik desa dari satu halaman.</p>
+    </div>
 
-            @if(session('success'))
-            <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-                {{ session('success') }}
+    <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <form method="GET" action="{{ route($routePrefix . '.artikel.index') }}"
+            class="grid grid-cols-1 gap-3 md:grid-cols-12">
+            <div class="md:col-span-7">
+                <label for="q"
+                    class="mb-1 block text-xs font-semibold uppercase tracking-[1px] text-slate-700">Pencarian
+                    Artikel</label>
+                <input id="q" type="text" name="q" value="{{ $q ?? '' }}"
+                    placeholder="Cari judul, ringkasan, isi, atau slug..."
+                    class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200">
             </div>
-            @endif
-
-            @if($errors->any())
-            <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                <p class="font-semibold">Gagal menyimpan data:</p>
-                <ul class="mt-1 list-disc pl-5">
-                    @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+            <div class="md:col-span-3">
+                <label for="status"
+                    class="mb-1 block text-xs font-semibold uppercase tracking-[1px] text-slate-700">Filter
+                    Status</label>
+                <select id="status" name="status"
+                    class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200">
+                    <option value="all" {{ ($status ?? 'all') === 'all' ? 'selected' : '' }}>Semua</option>
+                    <option value="published" {{ ($status ?? 'all') === 'published' ? 'selected' : '' }}>Dipublikasikan</option>
+                    <option value="draft" {{ ($status ?? 'all') === 'draft' ? 'selected' : '' }}>Draf</option>
+                </select>
             </div>
-            @endif
-
-            <div class="mb-4 rounded-md border border-slate-200 bg-slate-50 p-4 shadow-sm">
-                <form method="GET" action="{{ route($routePrefix . '.artikel.index') }}"
-                    class="grid grid-cols-1 gap-3 md:grid-cols-12">
-                    <div class="md:col-span-7">
-                        <label for="q"
-                            class="mb-1 block text-xs font-semibold uppercase tracking-[1px] text-slate-700">Pencarian
-                            Artikel</label>
-                        <input
-                            id="q"
-                            type="text"
-                            name="q"
-                            value="{{ $q ?? '' }}"
-                            placeholder="Cari judul, ringkasan, isi, atau slug..."
-                            class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200">
-                    </div>
-                    <div class="md:col-span-3">
-                        <label for="status"
-                            class="mb-1 block text-xs font-semibold uppercase tracking-[1px] text-slate-700">Filter
-                            Status</label>
-                        <select
-                            id="status"
-                            name="status"
-                            class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200">
-                            <option value="all" {{ ($status ?? 'all') === 'all' ? 'selected' : '' }}>Semua</option>
-                            <option value="published" {{ ($status ?? 'all') === 'published' ? 'selected' : '' }}>Dipublikasikan</option>
-                            <option value="draft" {{ ($status ?? 'all') === 'draft' ? 'selected' : '' }}>Draf</option>
-                        </select>
-                    </div>
-                    <div class="md:col-span-2 flex items-end gap-2">
-                        <button type="submit"
-                            class="inline-flex w-full items-center justify-center rounded-md bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600">
-                            Cari
-                        </button>
-                    </div>
-                </form>
+            <div class="md:col-span-2 flex items-end gap-2">
+                <button type="submit"
+                    class="inline-flex w-full items-center justify-center rounded-md bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600">
+                    Cari
+                </button>
             </div>
+        </form>
+    </div>
 
-            <div class="rounded-md border border-gray-100 bg-white shadow-sm">
-                <div class="mb-4 flex justify-end px-4 pt-4">
-                    <button type="button" data-open-modal="createArtikelModal"
-                        class="inline-flex rounded-lg bg-emerald-700 px-4 py-1.5 text-sm font-semibold text-white hover:bg-emerald-600">
-                        + Tambah Artikel
-                    </button>
-                </div>
-                <div class="w-full max-w-full overflow-x-auto">
-                    <table class="min-w-[1080px] w-full">
+    <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm" data-bulk-selection>
+        <div class="mb-4 flex justify-end">
+            <button type="button" data-open-modal="createArtikelModal"
+                class="inline-flex items-center justify-center rounded-md bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600">
+                + Tambah Artikel
+            </button>
+        </div>
+        @include('partials.admin-bulk-delete-toolbar', [
+            'formId' => 'bulk-delete-artikel',
+            'action' => route($routePrefix . '.artikel.bulk-destroy'),
+            'title' => 'Hapus artikel terpilih?',
+            'message' => 'Artikel yang dipilih tidak dapat dikembalikan.',
+        ])
+        <div class="rounded-md border border-gray-100 bg-white shadow-sm">
+            <div class="w-full max-w-full overflow-x-auto">
+                <table class="min-w-[1080px] w-full">
                         <thead>
                             <tr class="bg-gradient-to-r from-slate-800 to-slate-700">
+                                <th data-bulk-selection-cell class="hidden px-4 py-3 text-center">
+                                    <input type="checkbox" data-bulk-select-all disabled aria-label="Pilih semua artikel di halaman ini"
+                                        class="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-500">
+                                </th>
                                 <th class="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-[1px] text-white">Gambar</th>
                                 <th class="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-[1px] text-white">Judul</th>
                                 <th class="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-[1px] text-white">Ringkasan</th>
@@ -94,6 +76,11 @@ $routePrefix = request()->routeIs('petugas.*') ? 'petugas' : 'admin';
                         <tbody class="divide-y divide-gray-50">
                             @forelse($artikel as $item)
                             <tr class="group transition hover:bg-gray-50/50">
+                                <td data-bulk-selection-cell class="hidden px-4 py-4 text-center">
+                                    <input type="checkbox" name="ids[]" value="{{ $item->id }}" form="bulk-delete-artikel"
+                                        data-bulk-select-row aria-label="Pilih artikel {{ $item->judul }}"
+                                        class="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-500">
+                                </td>
                                 <td class="px-4 py-4">
                                     @if($item->gambar)
                                     <img src="{{ asset('storage/'.$item->gambar) }}" alt="{{ $item->judul }}"
@@ -119,7 +106,8 @@ $routePrefix = request()->routeIs('petugas.*') ? 'petugas' : 'admin';
                                         </button>
 
                                         <form action="{{ route($routePrefix . '.artikel.destroy', $item->id) }}" method="POST"
-                                            onsubmit="return confirm('Yakin hapus artikel ini?')">
+                                            data-delete-title="Hapus artikel ini?"
+                                            data-delete-message="Artikel yang dihapus tidak dapat dikembalikan.">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
@@ -133,20 +121,18 @@ $routePrefix = request()->routeIs('petugas.*') ? 'petugas' : 'admin';
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="px-4 py-12 text-center text-gray-500">Belum ada artikel.</td>
+                                <td colspan="7" class="px-4 py-12 text-center text-gray-500">Belum ada artikel.</td>
                             </tr>
                             @endforelse
                         </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="mt-4">
-                {{ $artikel->links() }}
+                </table>
             </div>
         </div>
+
     </div>
-</section>
+
+    @include('partials.admin-pagination-footer', ['paginator' => $artikel, 'label' => 'artikel'])
+</div>
 
 <div id="createArtikelModal" class="fixed inset-0 z-[70] hidden items-center justify-center bg-black/50 p-4">
     <div class="w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl">
@@ -175,8 +161,7 @@ $routePrefix = request()->routeIs('petugas.*') ? 'petugas' : 'admin';
                 <div>
                     <label class="mb-1 block text-sm font-semibold text-slate-700">Isi Artikel</label>
                     <textarea id="create_isi_artikel" name="isi" rows="8"
-                        class="js-artikel-editor w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-200"
-                        required></textarea>
+                        class="js-artikel-editor w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-200"></textarea>
                 </div>
                 <div>
                     <label class="mb-1 block text-sm font-semibold text-slate-700">Gambar</label>
@@ -194,7 +179,7 @@ $routePrefix = request()->routeIs('petugas.*') ? 'petugas' : 'admin';
                     <button type="button" data-close-modal
                         class="rounded-md bg-red-500 px-4 py-1.5 text-sm font-semibold text-white hover:bg-red-400">Batal</button>
                     <button type="submit"
-                        class="rounded-md bg-orange-500 px-4 py-1.5 text-sm font-semibold text-white hover:bg-orange-400">Simpan</button>
+                        class="relative z-[80] rounded-md bg-orange-500 px-4 py-1.5 text-sm font-semibold text-white hover:bg-orange-400">Simpan</button>
                 </div>
             </form>
         </div>
@@ -230,8 +215,7 @@ $routePrefix = request()->routeIs('petugas.*') ? 'petugas' : 'admin';
                 <div>
                     <label class="mb-1 block text-sm font-semibold text-slate-700">Isi Artikel</label>
                     <textarea id="edit_isi_artikel_{{ $item->id }}" name="isi" rows="8"
-                        class="js-artikel-editor w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-200"
-                        required>{{ $item->isi }}</textarea>
+                        class="js-artikel-editor w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-200">{{ $item->isi }}</textarea>
                 </div>
                 <div>
                     <label class="mb-1 block text-sm font-semibold text-slate-700">Gambar Saat Ini</label>
@@ -258,7 +242,7 @@ $routePrefix = request()->routeIs('petugas.*') ? 'petugas' : 'admin';
                     <button type="button" data-close-modal
                         class="rounded-md bg-red-500 px-4 py-1.5 text-sm font-semibold text-white hover:bg-red-400">Batal</button>
                     <button type="submit"
-                        class="rounded-md bg-orange-500 px-4 py-1.5 text-sm font-semibold text-white hover:bg-orange-400">Simpan
+                        class="relative z-[80] rounded-md bg-orange-500 px-4 py-1.5 text-sm font-semibold text-white hover:bg-orange-400">Simpan
                         Perubahan</button>
                 </div>
             </form>
@@ -285,6 +269,7 @@ $routePrefix = request()->routeIs('petugas.*') ? 'petugas' : 'admin';
             branding: false,
             promotion: false,
             statusbar: true,
+            z_index: 50,
             content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }'
         });
     };
@@ -332,6 +317,9 @@ $routePrefix = request()->routeIs('petugas.*') ? 'petugas' : 'admin';
     });
 
     document.querySelectorAll('form').forEach((form) => {
+        if (form.querySelector('.js-artikel-editor')) {
+            form.setAttribute('novalidate', '');
+        }
         form.addEventListener('submit', () => {
             if (typeof tinymce !== 'undefined') {
                 tinymce.triggerSave();

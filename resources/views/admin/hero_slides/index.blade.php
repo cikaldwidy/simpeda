@@ -3,47 +3,34 @@
 @section('title', config('app.name') . ' | Slider Baner')
 
 @section('content')
-<section class="min-h-screen bg-slate-100 py-8">
-    <div class="mx-auto w-full max-w-7xl px-4 md:px-6">
-        <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-            <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
-                <div>
-                    <h1 class="text-3xl font-bold text-slate-800 tracking-[1px] md:text-left text-center">Konten Slider
-                        Baner</h1>
-                    </h1>
-                    <p class="mt-1 text-base text-slate-600 md:text-left text-center">Kelola konten slider utama di
-                        landing page.</p>
-                </div>
-            </div>
+<div class="space-y-6">
+    <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+        <h1 class="text-3xl font-bold tracking-[1px] text-slate-800">Konten Banner Utama</h1>
+        <p class="mt-2 text-sm text-slate-600">Kelola konten banner utama di landing page.</p>
+    </div>
 
-            @if(session('success'))
-            <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-                {{ session('success') }}
-            </div>
-            @endif
-
-            @if($errors->any())
-            <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                <p class="font-semibold">Gagal menyimpan data:</p>
-                <ul class="mt-1 list-disc pl-5">
-                    @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
-
-            <div class="rounded-md border border-gray-100 bg-white shadow-sm">
-                <div class="mb-4 flex justify-end">
-                    <button type="button" data-open-modal="createSlideModal"
-                        class="inline-flex rounded-lg bg-emerald-700 px-4 py-1.5 text-sm font-semibold text-white hover:bg-emerald-600">
-                        + Tambah Slide
-                    </button>
-                </div>
-                <div class="w-full max-w-full overflow-x-auto">
-                    <table class="min-w-[980px] w-full">
+    <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="mb-4 flex justify-end">
+            <button type="button" data-open-modal="createSlideModal"
+                class="inline-flex items-center justify-center rounded-md bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600">
+                + Tambah Slide
+            </button>
+        </div>
+        <div class="rounded-md border border-gray-100 bg-white shadow-sm" data-bulk-selection>
+            @include('partials.admin-bulk-delete-toolbar', [
+                'formId' => 'bulk-delete-hero-slides',
+                'action' => route('admin.hero-slides.bulk-destroy'),
+                'title' => 'Hapus slide terpilih?',
+                'message' => 'Slide yang dipilih tidak dapat dikembalikan.',
+            ])
+            <div class="w-full max-w-full overflow-x-auto">
+                <table class="min-w-[980px] w-full">
                         <thead>
                             <tr class="bg-gradient-to-r from-slate-800 to-slate-700">
+                                <th data-bulk-selection-cell class="hidden px-4 py-3 text-center">
+                                    <input type="checkbox" data-bulk-select-all disabled aria-label="Pilih semua slide di halaman ini"
+                                        class="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-500">
+                                </th>
                                 <th
                                     class="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-[1px] text-white">
                                     Urutan</th>
@@ -67,6 +54,11 @@
                         <tbody class="divide-y divide-gray-50">
                             @forelse($slides as $s)
                             <tr class="group transition hover:bg-gray-50/50">
+                                <td data-bulk-selection-cell class="hidden px-4 py-4 text-center">
+                                    <input type="checkbox" name="ids[]" value="{{ $s->id }}" form="bulk-delete-hero-slides"
+                                        data-bulk-select-row aria-label="Pilih slide {{ $s->title }}"
+                                        class="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-500">
+                                </td>
                                 <td class="px-4 py-4 text-sm font-medium tracking-[.5px] text-gray-800">
                                     {{ $s->sort_order }}</td>
                                 <td class="px-4 py-4">
@@ -92,7 +84,8 @@
                                         </button>
 
                                         <form method="POST" action="{{ route('admin.hero-slides.destroy', $s->id) }}"
-                                            onsubmit="return confirm('Hapus slide ini?')">
+                                            data-delete-title="Hapus slide ini?"
+                                            data-delete-message="Slide yang dihapus tidak dapat dikembalikan.">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
@@ -106,17 +99,18 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="px-4 py-12 text-center text-gray-500">Belum ada data hero slide.
+                                <td colspan="7" class="px-4 py-12 text-center text-gray-500">Belum ada data hero slide.
                                 </td>
                             </tr>
                             @endforelse
                         </tbody>
-                    </table>
-                </div>
+                </table>
             </div>
         </div>
     </div>
-</section>
+
+    @include('partials.admin-pagination-footer', ['paginator' => $slides, 'label' => 'banner utama'])
+</div>
 
 <div id="createSlideModal" class="fixed inset-0 z-[70] hidden items-center justify-center bg-black/50 p-4">
     <div class="w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl">

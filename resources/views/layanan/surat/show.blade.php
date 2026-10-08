@@ -6,23 +6,12 @@
 
 @section('dashboard_content')
 <div class="space-y-4 print:space-y-0">
-    @if(session('status'))
-    <div class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 print:hidden">
-        {{ session('status') }}
-    </div>
-    @endif
-    @if(session('error'))
-    <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 print:hidden">
-        {{ session('error') }}
-    </div>
-    @endif
-
     <div class="print:hidden mt-5">
-        <p class="mb-2 text-xs font-medium capitalize tracking-[.5px] text-gray-800">
+        <p class="mb-2 text-sm font-medium capitalize tracking-[.5px] text-gray-800">
             <a href="{{ route('layanan.pengajuan.create', ['jenis' => $surat->jenis_surat]) }}"
-                class="hover:text-orange-500 transition hover:underline">{{ $jenisLabel }}</a>
+                class=" transition hover:underline">{{ $jenisLabel }}</a>
             <span>&rsaquo;</span>
-            <span>Pengajuan</span>
+            <span class="underline">Pengajuan</span>
         </p>
     </div>
 
@@ -39,21 +28,53 @@
             </a>
             @endif
         </div>
-        @if(!$canViewDocument)
-        <div class="mt-3 rounded-md border border-amber-200 bg-amber-50 p-5 text-amber-800">
-            <p class="text-sm font-semibold">Pengajuan Anda sedang menunggu persetujuan admin.</p>
-            <p class="mt-2 text-sm">
-                Surat akan tersedia untuk dilihat dan diunduh setelah status berubah menjadi <strong>DISETUJUI</strong>.
+        @php
+        $statusKey = strtolower((string) $surat->status);
+        $statusStyle = match ($statusKey) {
+        'disetujui' => 'border-green-200 bg-green-50 text-green-700',
+        'ditolak' => 'border-red-200 bg-red-50 text-red-700',
+        default => 'border-amber-200 bg-amber-50 text-amber-700',
+        };
+        $statusCardStyle = match ($statusKey) {
+        'disetujui' => 'border-green-200 bg-gradient-to-br from-green-50 via-white to-green-100/60',
+        'ditolak' => 'border-red-200 bg-gradient-to-br from-red-50 via-white to-red-100/60',
+        default => 'border-amber-200 bg-gradient-to-br from-amber-50 via-white to-amber-100/60',
+        };
+        @endphp
+        <div class="mt-3 rounded-xl border p-6 text-center shadow-sm {{ $statusCardStyle }}">
+            <p class="text-xs font-semibold uppercase tracking-[2px] text-slate-500">Status Surat</p>
+            <p
+                class="mt-3 inline-flex items-center rounded-full border px-4 py-1 text-3xl font-extrabold uppercase tracking-[2px] md:text-4xl {{ $statusStyle }}">
+                {{ strtoupper($surat->status) }}
             </p>
-            <p class="mt-3 text-xs text-amber-700">
-                Status saat ini: {{ strtoupper($surat->status) }}
+            <p class="mx-auto mt-4 max-w-2xl text-sm text-gray-600">
+                @if($canViewDocument)
+                Surat sudah disetujui. Anda dapat melihat dan mengunduh dokumen PDF di bawah.
+                @else
+                Pengajuan Anda sedang menunggu persetujuan admin. Surat akan tersedia setelah status menjadi
+                <strong>DISETUJUI</strong>.
+                @endif
             </p>
+            <div class="mt-5 rounded-lg border border-gray-200 bg-white p-4 text-left">
+                <p class="text-xs font-semibold uppercase tracking-[1px] text-gray-700">Catatan Admin/Petugas</p>
+                <p class="mt-2 text-sm text-gray-800 tracking-[.5px]">
+                    {{ $surat->admin_note ? $surat->admin_note : 'Belum ada catatan.' }}
+                </p>
+            </div>
         </div>
-        @else
+
+        @if($canViewDocument)
         @php
         $pdfViewerUrl = route('layanan.pengajuan.preview', $surat) . '?v=' . ($surat->updated_at?->timestamp ?? time());
         @endphp
-        <div class=" mt-3 overflow-hidden rounded-md bg-gray-50">
+        <div class="mt-4 rounded-md border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-orange-700">
+            <span class="inline-flex items-center gap-2 font-semibold">
+                <i class="fa-solid fa-bullhorn"></i>
+                Informasi Penting:
+            </span>
+            <span class="ml-1">Nomor surat sudah diisi admin/petugas. Silakan datang ke kantor desa untuk tanda tangan dan pengambilan surat.</span>
+        </div>
+        <div class="mt-3 overflow-hidden rounded-md bg-gray-50">
             <object data="{{ $pdfViewerUrl }}#toolbar=1&navpanes=0&scrollbar=1" type="application/pdf"
                 class="h-[78vh] w-full">
                 <embed src="{{ $pdfViewerUrl }}#toolbar=1&navpanes=0&scrollbar=1" type="application/pdf"

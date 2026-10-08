@@ -3,245 +3,6 @@
 @section('title', config('app.name') . ' | Beranda')
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/index-style.css') }}">
-<style>
-/* Chatbot Popup (Landing) */
-.animated-grid {
-    background-image:
-        linear-gradient(to right, rgba(249, 115, 22, .05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(249, 115, 22, .05) 1px, transparent 1px);
-    background-size: 40px 40px;
-    animation: gridMove 30s linear infinite;
-}
-
-@keyframes gridMove {
-    0% {
-        background-position: 0 0;
-    }
-
-    100% {
-        background-position: 40px 40px;
-    }
-}
-
-.typing-dot {
-    animation: typingBounce 2s infinite ease-in-out;
-}
-
-.typing-dot:nth-child(2) {
-    animation-delay: .3s;
-}
-
-.typing-dot:nth-child(3) {
-    animation-delay: .6s;
-}
-
-@keyframes typingBounce {
-
-    0%,
-    70%,
-    100% {
-        transform: translateY(0);
-        opacity: .3;
-    }
-
-    35% {
-        transform: translateY(-10px);
-        opacity: 1;
-    }
-}
-
-.slide-in-left {
-    animation: slideInLeft .30s ease-out;
-}
-
-.slide-in-right {
-    animation: slideInRight .30s ease-out;
-}
-
-@keyframes slideInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-30px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes slideInRight {
-    from {
-        opacity: 0;
-        transform: translateX(30px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-.btn-glow:hover {
-    box-shadow: 0 0 20px rgba(249, 115, 22, .4), 0 4px 12px rgba(0, 0, 0, .3);
-}
-
-.quick-btn {
-    transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.quick-btn:hover {
-    transform: translateY(-2px);
-}
-
-#chat-messages-public::-webkit-scrollbar,
-#quick-actions-panel::-webkit-scrollbar {
-    width: 6px;
-}
-
-#chat-messages-public::-webkit-scrollbar-track,
-#quick-actions-panel::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, .1);
-    border-radius: 10px;
-}
-
-#chat-messages-public::-webkit-scrollbar-thumb,
-#quick-actions-panel::-webkit-scrollbar-thumb {
-    background: rgba(249, 115, 22, .4);
-    border-radius: 10px;
-}
-
-#chat-messages-public::-webkit-scrollbar-thumb:hover,
-#quick-actions-panel::-webkit-scrollbar-thumb:hover {
-    background: rgba(249, 115, 22, .6);
-}
-
-.shimmer {
-    position: relative;
-    overflow: hidden;
-}
-
-.shimmer::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(249, 115, 22, .1), transparent);
-    animation: shimmer 3s infinite;
-}
-
-@keyframes shimmer {
-    0% {
-        left: -100%;
-    }
-
-    100% {
-        left: 100%;
-    }
-}
-
-/* ===== SECTION REVEAL ANIMATIONS ===== */
-
-.reveal,
-.reveal-item {
-    opacity: 0;
-    transform: translateY(50px) rotateX(15deg) scale(0.95);
-    transform-origin: top center;
-    transition:
-        opacity .9s cubic-bezier(0.16, 1, 0.3, 1),
-        transform .9s cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: opacity, transform;
-}
-
-.reveal.is-visible,
-.reveal-item.is-visible {
-    opacity: 1;
-    transform: translateY(0) rotateX(0deg) scale(1);
-}
-
-.reveal-left {
-    opacity: 0;
-    transform: translateX(-60px) rotateY(20deg) scale(0.94);
-    transform-origin: left center;
-    transition:
-        opacity .9s cubic-bezier(0.16, 1, 0.3, 1),
-        transform .9s cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: opacity, transform;
-}
-
-.reveal-right {
-    opacity: 0;
-    transform: translateX(60px) rotateY(-20deg) scale(0.94);
-    transform-origin: right center;
-    transition:
-        opacity .9s cubic-bezier(0.16, 1, 0.3, 1),
-        transform .9s cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: opacity, transform;
-}
-
-.reveal-left.is-visible,
-.reveal-right.is-visible {
-    opacity: 1;
-    transform: translateX(0) rotateY(0deg) scale(1);
-}
-
-.reveal-up {
-    opacity: 0;
-    transform: translateY(55px) rotateX(18deg) scale(0.95);
-    transform-origin: bottom center;
-    transition:
-        opacity .85s cubic-bezier(0.16, 1, 0.3, 1),
-        transform .85s cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: opacity, transform;
-}
-
-.reveal-up.is-visible {
-    opacity: 1;
-    transform: translateY(0) rotateX(0deg) scale(1);
-}
-
-/* ===== STAGGER DELAYS ===== */
-.reveal-delay-1 {
-    transition-delay: .05s;
-}
-
-.reveal-delay-2 {
-    transition-delay: .40s;
-}
-
-.reveal-delay-3 {
-    transition-delay: .60s;
-}
-
-.reveal-delay-4 {
-    transition-delay: .20s;
-}
-
-.reveal-delay-5 {
-    transition-delay: .70s;
-}
-
-.reveal-delay-6 {
-    transition-delay: .40s;
-}
-
-/* ===== REDUCED MOTION ===== */
-@media (prefers-reduced-motion: reduce) {
-
-    .reveal,
-    .reveal-left,
-    .reveal-right,
-    .reveal-item,
-    .reveal-up {
-        opacity: 1;
-        transform: none;
-        transition: none;
-        animation: none;
-    }
-}
-</style>
 @endpush
 @section('content')
 @include('partials.nav')
@@ -320,61 +81,61 @@
 </section>
 
 <!-- konten 2 -->
-<div class="max-w-7xl mx-auto reveal">
-    <div class="grid grid-cols-2 md:grid-cols-4 bg-orange-100 shadow" data-reveal-group>
+<div class="mx-auto reveal">
+    <div class="grid grid-cols-2 md:grid-cols-4 bg-orange-50 shadow" data-reveal-group>
 
         <!-- PROFILE -->
-        <a href="#" class="reveal-item group flex flex-col items-center justify-center py-10
-                  border-b border-r md:border-b-0 md:border-r border-orange-500
+        <a href="{{ route('profil') }}" class="reveal-item group flex flex-col items-center justify-center py-10
+                 border-r-4 md:border-r-4 border-orange-200
                   hover:bg-white transition">
-            <div class="text-orange-500 mb-4 text-5xl
+            <div class="text-indigo-900 mb-4 text-5xl
                         transition duration-300 group-hover:scale-125 group-hover:text-orange-500">
                 <i class="fa-solid fa-building-columns"></i>
             </div>
             <span
-                class="text-orange-500 font-semibold tracking-widest uppercase text-center group-hover:text-orange-500 transition">
+                class="text-indigo-900 font-semibold tracking-widest uppercase text-center group-hover:text-orange-500 transition">
                 Profile
             </span>
         </a>
 
         <!-- BERITA -->
-        <a href="#" class="reveal-item group flex flex-col items-center justify-center py-10
-                  border-b border-r-0 md:border-b-0 md:border-r border-orange-500
+        <a href="{{ route('berita') }}" class="reveal-item group flex flex-col items-center justify-center py-10
+                 border-r-4 md:border-r-4 border-orange-200
                   hover:bg-white transition">
-            <div class="text-orange-500 mb-4 text-5xl
+            <div class="text-indigo-900 mb-4 text-5xl
                         transition duration-300 group-hover:scale-125 group-hover:text-orange-500">
                 <i class="fa-solid fa-newspaper"></i>
             </div>
             <span
-                class="text-orange-500 font-semibold tracking-widest uppercase text-center group-hover:text-orange-500 transition">
+                class="text-indigo-900 font-semibold tracking-widest uppercase text-center group-hover:text-orange-500 transition">
                 Berita
             </span>
         </a>
 
         <!-- ASPIRASI -->
-        <a href="#" class="reveal-item group flex flex-col items-center justify-center py-10
-                  border-r md:border-r border-orange-500
-                  hover:bg-white transition text-center px-4">
-            <div class="text-orange-500 mb-4 text-5xl
+        <a href="{{ route('aspirasi') }}" class="reveal-item group flex flex-col items-center justify-center py-10
+                 border-r-4 md:border-r-4 border-orange-200
+                  hover:bg-white transition">
+            <div class="text-indigo-900 mb-4 text-5xl
                         transition duration-300 group-hover:scale-125 group-hover:text-orange-500">
                 <i class="fa-solid fa-users"></i>
             </div>
             <span
-                class="text-orange-500 font-semibold tracking-widest uppercase leading-tight group-hover:text-orange-500 transition">
+                class="text-indigo-900 font-semibold tracking-widest uppercase leading-tight group-hover:text-orange-500 transition">
                 Aspirasi Warga
             </span>
         </a>
 
         <!-- HALLO -->
         <a href="#" class="reveal-item group flex flex-col items-center justify-center py-10
-                  border-r-0 md:border-r border-orange-500
-                  hover:bg-white transition text-center px-4">
-            <div class="text-orange-500 mb-4 text-5xl
+                  border-r-4 md:border-r-4 border-orange-200
+                  hover:bg-white transition">
+            <div class="text-indigo-900 mb-4 text-5xl
                         transition duration-300 group-hover:scale-125 group-hover:text-orange-500">
                 <i class="fa-solid fa-phone"></i>
             </div>
             <span
-                class="text-orange-500 font-semibold tracking-widest uppercase text-center group-hover:text-orange-500 transition">
+                class="text-indigo-900 font-semibold tracking-widest uppercase text-center group-hover:text-orange-500 transition">
                 Hallo Desa
             </span>
         </a>
@@ -383,16 +144,16 @@
 </div>
 
 <!-- konten 3 -->
-<section id="sambutan" class="py-10 px-5 relative overflow-hidden reveal">
+<section id="sambutan" class="py-10 px-5 relative overflow-hidden">
 
-    <div class="mx-auto w-full max-w-6xl px-2 md:px-4 relative z-10">
+    <div class="mx-auto w-full px-2 md:px-6 relative z-10">
 
         {{-- HEADER --}}
         <div class="mb-12 text-center ">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 tracking-wide">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 tracking-wide reveal">
                 SAMBUTAN KEPALA DESA
             </h2>
-            <div class="mx-auto mt-2 h-[4px] w-10 bg-orange-500"></div>
+            <div class="mx-auto mt-2 h-[4px] w-10 bg-orange-500 reveal"></div>
         </div>
 
         <div class="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
@@ -401,7 +162,7 @@
             <div class="relative reveal-left">
 
                 <div class="relative z-10 overflow-hidden">
-                    <img src="{{ asset('img/kepala_desaaa.png') }}" alt="Kepala Desa"
+                    <img src="{{ asset('img/kepala_desaa.png') }}" alt="Kepala Desa"
                         class="w-full max-w-sm object-cover aspect-[4/5]" />
                 </div>
 
@@ -457,22 +218,23 @@
 </section>
 
 <!-- konten 4 -->
-<section class="relative py-12 px-5 text-center overflow-hidden bg-white reveal">
+<section class="relative py-12 px-5 text-center overflow-hidden bg-white">
 
-    <div class="relative z-10 max-w-6xl mx-auto">
+    <div class="relative z-10 mx-auto px-2 md:px-6">
 
         {{-- Header --}}
-        <div class="flex flex-col items-center mb-10">
+        <div class="flex flex-col items-center mb-10 reveal">
 
             <h2 class="text-3xl md:text-4xl font-bold text-gray-900 tracking-wide">
                 SOTK
             </h2>
 
             <div class="mt-2 inline-flex items-center gap-2">
-                <span class="text-gray-600 text-xs font-semibold tracking-[0.25em] uppercase">Struktur Organisasi
+                <span class="text-gray-600 text-xs font-semibold tracking-[0.25em] uppercase">Struktur
+                    Organisasi
                     dan Tata Kerja Pemerintah Desa</span>
             </div>
-            <div class="mx-auto mt-3 h-[3px] w-12 bg-orange-400"></div>
+            <div class="mx-auto mt-3 h-[3px] w-12 bg-orange-400 reveal"></div>
         </div>
 
         @php
@@ -515,8 +277,8 @@
         </div>
 
         {{-- Link selengkapnya --}}
-        <div class="mt-10 flex justify-center">
-            <a href="#" class="group inline-flex items-center gap-2 text-gray-800 font-semibold
+        <div class="mt-10 flex justify-center reveal-left">
+            <a href="{{ route('profil') }}" class="group inline-flex items-center gap-2 text-gray-800 font-semibold
               text-sm sm:text-base border-b-2 border-orange-500 pb-1
               hover:text-orange-500 transition-all duration-300">
                 <span>Lihat Selengkapnya</span>
@@ -528,18 +290,18 @@
 </section>
 
 <!-- konten 5 -->
-<section class="py-5 reveal">
-    <div class="max-w-6xl mx-auto px-4">
+<section class="py-5 px-5">
+    <div class="mx-auto px-2 md:px-6 ">
 
-        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 tracking-wide text-center">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 tracking-wide text-center reveal">
             BERITA TERKINI
         </h2>
-        <div class="mx-auto mt-2 h-[4px] w-10 bg-orange-500"></div>
+        <div class="mx-auto mt-2 h-[4px] w-10 bg-orange-500 reveal"></div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mt-5 md:mt-10" data-reveal-group>
 
             @foreach($berita->take(6) as $item)
-            <div class="reveal-item bg-white shadow-lg overflow-hidden group
+            <div class="reveal-up bg-white shadow-lg overflow-hidden group
                         transition duration-300 hover:shadow-2xl">
 
                 <div class="relative overflow-hidden">
@@ -566,7 +328,7 @@
                                 transition duration-300">
 
                         <a href="{{ route('berita.show', $item->slug) }}" class="text-white text-md font-medium 
-                                  tracking-wide hover:underline transition">
+                                  tracking-wide hover:underline transition reveal-left">
                             Selengkapnya &rarr;
                         </a>
 
@@ -593,7 +355,7 @@
 
         </div>
     </div>
-    <div class="mt-10 flex justify-center">
+    <div class="mt-10 flex justify-center reval-left">
         <a href="{{route ('berita')}}" class="group inline-flex items-center gap-2 text-gray-800 font-semibold
               text-sm sm:text-base border-b-2 border-orange-500 pb-1
               hover:text-orange-500 transition-all duration-300">
@@ -604,23 +366,365 @@
 </section>
 
 
+
+<section id="anggaran" class="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white px-4 py-14 sm:px-6 sm:py-20">
+    <div class="pointer-events-none absolute -right-24 -top-32 h-96 w-96 rounded-full bg-sky-100 blur-3xl"></div>
+    <div class="relative mx-auto max-w-4xl">
+        <div class="mx-auto mb-7 flex max-w-3xl flex-col items-center gap-3 text-center">
+            <img src="{{ asset('img/logo_TAhead.png') }}" alt="Lambang Desa Wonorejo"
+                class="h-14 w-14 rounded-full border border-slate-200 bg-white object-contain p-1 shadow-sm">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-[0.2em] text-emerald-700">Infografik APBDesa Wonorejo</p>
+                <h2 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-900 md:text-3xl">Anggaran Dana Desa</h2>
+            </div>
+        </div>
+
+        @if($laporanAnggaran->isNotEmpty())
+        <div class="mx-auto mb-3 flex max-w-4xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <label for="landingBudgetReport" class="text-sm font-bold text-slate-700">Pilih laporan APBDes</label>
+            <select id="landingBudgetReport"
+                class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100 sm:w-auto sm:min-w-64">
+                @foreach($laporanAnggaran as $laporan)
+                <option value="{{ $laporan->id }}" @selected($loop->first)>{{ $laporan->jenis_laporan }} {{ $laporan->tahun }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="mx-auto max-w-4xl overflow-hidden rounded-lg border border-slate-200 bg-white shadow-[0_8px_24px_-18px_rgba(15,23,42,0.3)]">
+            @foreach($laporanAnggaran as $laporan)
+            @php
+            $incomeItems = $laporan->items->where('jenis', 'pendapatan');
+            $financingItems = $laporan->items->where('jenis', 'pembiayaan');
+            $expensesByCategory = $laporan->items->where('jenis', 'belanja')->groupBy('kategori')
+                ->map(fn ($items) => $items->sum('jumlah'));
+            $totalIncome = $laporan->getTotalByJenis('pendapatan');
+            $totalExpense = $laporan->getTotalByJenis('belanja');
+            $totalFinancing = $laporan->getTotalByJenis('pembiayaan');
+            $budgetDisplayTitle = stripos(trim($laporan->judul), 'infografik') !== false
+                ? 'Anggaran Desa'
+                : $laporan->judul;
+            $budgetTheme = [
+                'infografis' => [
+                    'font' => "'Hind', sans-serif",
+                    'header' => 'linear-gradient(115deg, #083344, #0369a1 55%, #f97316)',
+                    'accent' => '#0369a1',
+                    'surface' => 'linear-gradient(135deg, rgba(240,249,255,.98), rgba(255,247,237,.96)), radial-gradient(circle at 18% 22%, rgba(14,165,233,.18) 0 56px, transparent 57px), repeating-linear-gradient(90deg, rgba(3,105,161,.05) 0 2px, transparent 2px 18px)',
+                    'ornament' => 'radial-gradient(circle at 10% 18%, rgba(14,165,233,.18) 0 2px, transparent 3px), radial-gradient(circle at 86% 80%, rgba(249,115,22,.18) 0 2px, transparent 3px), linear-gradient(120deg, transparent 0 65%, rgba(14,165,233,.08) 65% 66%, transparent 66%)',
+                    'pie' => ['#0ea5e9', '#f97316', '#14b8a6', '#2563eb', '#84cc16'],
+                ],
+                'merah-putih' => [
+                    'font' => "'Barlow Condensed', sans-serif",
+                    'header' => 'linear-gradient(120deg, #7f1d1d, #dc2626 44%, #ffffff 44% 50%, #991b1b 50%)',
+                    'accent' => '#b91c1c',
+                    'surface' => 'linear-gradient(135deg, rgba(255,241,242,.98), rgba(255,255,255,.97)), repeating-linear-gradient(135deg, rgba(220,38,38,.08) 0 10px, transparent 10px 24px)',
+                    'ornament' => 'linear-gradient(135deg, rgba(220,38,38,.14) 0 14%, transparent 14% 28%, rgba(255,255,255,.7) 28% 36%, transparent 36%), radial-gradient(circle at 92% 10%, rgba(220,38,38,.16), transparent 24%)',
+                    'pie' => ['#dc2626', '#ef4444', '#1d4ed8', '#f59e0b', '#0f766e'],
+                ],
+                'nusantara' => [
+                    'font' => "'Lora', serif",
+                    'header' => 'linear-gradient(115deg, #064e3b, #047857 58%, #a16207)',
+                    'accent' => '#047857',
+                    'surface' => 'linear-gradient(135deg, rgba(236,253,245,.98), rgba(254,243,199,.82)), repeating-linear-gradient(45deg, rgba(4,120,87,.08) 0 7px, transparent 7px 18px), repeating-linear-gradient(-45deg, rgba(202,138,4,.07) 0 5px, transparent 5px 22px)',
+                    'ornament' => 'radial-gradient(circle at 8% 12%, rgba(202,138,4,.22) 0 3px, transparent 4px), radial-gradient(circle at 16% 20%, rgba(4,120,87,.18) 0 8px, transparent 9px), repeating-linear-gradient(45deg, rgba(4,120,87,.05) 0 8px, transparent 8px 22px)',
+                    'pie' => ['#047857', '#ca8a04', '#0e7490', '#b45309', '#166534'],
+                ],
+                'poster-batik' => [
+                    'font' => "'Righteous', sans-serif",
+                    'header' => 'linear-gradient(115deg, #881337, #be123c 58%, #9a3412)',
+                    'accent' => '#be123c',
+                    'surface' => 'linear-gradient(135deg, rgba(255,241,242,.97), rgba(255,251,235,.95)), radial-gradient(circle at 18% 18%, rgba(251,191,36,.2) 0 8px, transparent 9px), radial-gradient(circle at 82% 24%, rgba(190,18,60,.14) 0 14px, transparent 15px), repeating-linear-gradient(45deg, rgba(190,18,60,.07) 0 6px, transparent 6px 18px)',
+                    'ornament' => 'radial-gradient(circle at 90% 10%, rgba(251,191,36,.24) 0 3px, transparent 4px), radial-gradient(circle at 78% 26%, rgba(251,191,36,.18) 0 8px, transparent 9px), repeating-linear-gradient(45deg, rgba(190,18,60,.06) 0 7px, transparent 7px 20px)',
+                    'pie' => ['#be123c', '#d97706', '#1d4ed8', '#9f1239', '#047857'],
+                ],
+                'dashboard' => [
+                    'font' => "'Space Grotesk', sans-serif",
+                    'header' => 'linear-gradient(115deg, #020617, #1e3a8a 58%, #0f766e)',
+                    'accent' => '#2563eb',
+                    'surface' => 'linear-gradient(135deg, rgba(15,23,42,.98), rgba(30,41,59,.96)), linear-gradient(rgba(148,163,184,.09) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,.09) 1px, transparent 1px)',
+                    'ornament' => 'radial-gradient(circle at 88% 12%, rgba(37,99,235,.22), transparent 28%), linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px)',
+                    'pie' => ['#38bdf8', '#22c55e', '#f97316', '#a78bfa', '#06b6d4'],
+                ],
+                'rincian' => [
+                    'font' => "'Roboto Slab', serif",
+                    'header' => 'linear-gradient(115deg, #292524, #57534e 55%, #854d0e)',
+                    'accent' => '#57534e',
+                    'surface' => 'linear-gradient(135deg, rgba(250,250,249,.98), rgba(245,245,244,.96)), repeating-linear-gradient(0deg, rgba(87,83,78,.08) 0 1px, transparent 1px 20px), linear-gradient(90deg, rgba(180,83,9,.18) 0 3px, transparent 3px)',
+                    'ornament' => 'repeating-linear-gradient(0deg, rgba(87,83,78,.055) 0 1px, transparent 1px 18px), linear-gradient(90deg, rgba(180,83,9,.16) 0 2px, transparent 2px 100%)',
+                    'pie' => ['#57534e', '#0f766e', '#b45309', '#1d4ed8', '#be123c'],
+                ],
+            ][$laporan->template] ?? [
+                'font' => "'Hind', sans-serif",
+                'header' => 'linear-gradient(115deg, #083344, #0369a1 55%, #f97316)',
+                'accent' => '#0369a1',
+                'surface' => 'linear-gradient(135deg, rgba(240,249,255,.98), rgba(255,247,237,.96))',
+                'ornament' => 'radial-gradient(circle at 10% 18%, rgba(14,165,233,.18) 0 2px, transparent 3px)',
+                'pie' => ['#0ea5e9', '#f97316', '#14b8a6', '#2563eb', '#84cc16'],
+            ];
+            $pieColors = $budgetTheme['pie'];
+            $pieSegments = [];
+            $pieOffset = 0;
+            foreach ($expensesByCategory as $category => $amount) {
+                $share = $totalExpense > 0 ? ((float) $amount / $totalExpense) * 100 : 0;
+                $pieSegments[] = $pieColors[count($pieSegments) % count($pieColors)] . ' ' . number_format($pieOffset, 2, '.', '') . '% ' . number_format($pieOffset + $share, 2, '.', '') . '%';
+                $pieOffset += $share;
+            }
+            $pieBackground = $pieSegments ? 'conic-gradient(' . implode(', ', $pieSegments) . ')' : '#e2e8f0';
+            $maxExpense = max((float) $expensesByCategory->max(), 1);
+            @endphp
+            <article class="relative overflow-hidden" data-landing-budget-panel="{{ $laporan->id }}" style="font-family: {{ $budgetTheme['font'] }}; background: {{ $budgetTheme['surface'] }}; background-size: auto, 28px 28px, 28px 28px;" @if(!$loop->first) hidden @endif>
+                <div aria-hidden="true" class="pointer-events-none absolute inset-0 opacity-80" style="background: {{ $budgetTheme['ornament'] }}"></div>
+                <header class="relative flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-white sm:px-5 sm:py-3.5"
+                    style="background: {{ $budgetTheme['header'] }}">
+                    <div class="flex items-center gap-3">
+                        <img src="{{ asset('img/logo_TAhead.png') }}" alt="" class="h-9 w-9 rounded-full bg-white object-contain p-1">
+                        <div>
+                            <p class="text-base font-extrabold tracking-wide">Desa Wonorejo</p>
+                            <p class="text-[11px] text-white/85 sm:text-xs">Kec. Sumbergempol &middot; Kab. Tulungagung</p>
+                        </div>
+                    </div>
+                    <div class="border-l border-white/30 pl-3 text-right">
+                        <p class="text-[11px] uppercase tracking-[0.16em] text-white/85">{{ $laporan->jenis_laporan }}</p>
+                        <p class="text-xl font-black tracking-[0.18em]">{{ $laporan->tahun }}</p>
+                    </div>
+                </header>
+
+                <div class="relative p-3 sm:p-4 md:p-5">
+                    @if($laporan->template === 'infografis')
+                    <section class="relative mb-4 overflow-hidden rounded-2xl border border-sky-100 bg-white/85 p-4 shadow-sm sm:p-5">
+                        <div aria-hidden="true" class="absolute -left-10 top-4 h-28 w-28 rounded-full bg-sky-100"></div>
+                        <div aria-hidden="true" class="absolute -right-8 -bottom-8 h-32 w-32 rounded-full bg-orange-100"></div>
+                        <div class="relative grid gap-4 sm:grid-cols-[1fr_auto] sm:items-center">
+                            <div>
+                                <p class="text-xs font-bold uppercase tracking-[0.18em]" style="color: {{ $budgetTheme['accent'] }}">Infografik APBDesa - {{ $laporan->tahun }}</p>
+                                <h3 class="mt-1 text-xl font-black leading-tight text-slate-950 sm:text-2xl">{{ $budgetDisplayTitle }}</h3>
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    <span class="rounded-full bg-sky-100 px-3 py-1 text-xs font-bold text-sky-800">{{ $incomeItems->count() }} sumber pendapatan</span>
+                                    <span class="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-800">{{ $expensesByCategory->count() }} bidang belanja</span>
+                                </div>
+                            </div>
+                            <div class="rounded-2xl bg-slate-950 px-4 py-3 text-white shadow-sm">
+                                <p class="text-[11px] font-bold uppercase tracking-widest text-sky-200">Total Pendapatan</p>
+                                <p class="mt-1 text-2xl font-black">{{ 'Rp ' . number_format($totalIncome, 0, ',', '.') }}</p>
+                            </div>
+                        </div>
+                    </section>
+                    @elseif($laporan->template === 'merah-putih')
+                    <section class="relative mb-4 overflow-hidden rounded-xl px-4 py-5 text-white sm:px-6 sm:py-6"
+                        style="background: {{ $budgetTheme['header'] }}">
+                        <div aria-hidden="true" class="absolute -right-8 -top-10 h-36 w-36 rotate-12 border-[18px] border-white/10"></div>
+                        <div class="relative grid items-center gap-4 sm:grid-cols-[1fr_auto]">
+                            <div>
+                                <p class="text-xs font-bold uppercase tracking-[0.22em] text-white/75">Infografik APBDesa - {{ $laporan->tahun }}</p>
+                                <h3 class="mt-1 text-xl font-black uppercase leading-tight sm:text-2xl">{{ $budgetDisplayTitle }}</h3>
+                                <p class="mt-2 text-sm text-white/80">Ringkasan pendapatan, pembiayaan, dan alokasi belanja desa.</p>
+                            </div>
+                            <div class="border-t border-white/30 pt-3 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0 sm:text-right">
+                                <p class="text-xs font-bold uppercase tracking-widest text-white/75">Total Pendapatan</p>
+                                <p class="mt-1 text-2xl font-black sm:text-3xl">{{ 'Rp ' . number_format($totalIncome, 0, ',', '.') }}</p>
+                            </div>
+                        </div>
+                    </section>
+                    @elseif($laporan->template === 'nusantara')
+                    <section class="relative mb-4 overflow-hidden rounded-t-[2rem] rounded-b-lg border border-emerald-100 bg-white/90 px-4 py-5 text-center sm:px-6">
+                        <div aria-hidden="true" class="absolute -left-7 -top-9 h-24 w-24 rounded-full border-[12px] border-amber-100"></div>
+                        <div aria-hidden="true" class="absolute -bottom-10 -right-5 h-28 w-28 rounded-full border-[14px] border-emerald-50"></div>
+                        <div class="relative">
+                            <p class="text-xs font-bold uppercase tracking-[0.22em]" style="color: {{ $budgetTheme['accent'] }}">Infografik APBDesa - {{ $laporan->tahun }}</p>
+                            <h3 class="mt-1 text-xl font-black uppercase leading-tight text-slate-900 sm:text-2xl">{{ $budgetDisplayTitle }}</h3>
+                            <p class="mx-auto mt-3 inline-flex max-w-full flex-wrap items-center justify-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-4 py-2">
+                                <span class="text-xs font-bold uppercase tracking-wide text-emerald-800">Pendapatan</span>
+                                <span class="text-base font-black text-slate-900 sm:text-lg">{{ 'Rp ' . number_format($totalIncome, 0, ',', '.') }}</span>
+                            </p>
+                        </div>
+                    </section>
+                    @elseif($laporan->template === 'poster-batik')
+                    <section class="relative mb-4 overflow-hidden rounded-lg border border-rose-100 bg-rose-50/80 p-4 sm:p-5">
+                        <div aria-hidden="true" class="absolute inset-y-0 right-0 w-1/3 opacity-70" style="background: {{ $budgetTheme['ornament'] }}"></div>
+                        <div class="relative grid items-center gap-3 sm:grid-cols-[auto_1fr_auto]">
+                            <span class="hidden h-14 w-2 rounded-full bg-rose-700 sm:block"></span>
+                            <div>
+                                <p class="text-xs font-bold uppercase tracking-[0.2em] text-rose-800">Infografik APBDesa - {{ $laporan->tahun }}</p>
+                                <h3 class="mt-1 text-xl font-black uppercase leading-tight text-slate-900 sm:text-2xl">{{ $budgetDisplayTitle }}</h3>
+                            </div>
+                            <div class="relative rounded-xl border border-rose-200 bg-white/90 px-4 py-3 shadow-sm">
+                                <p class="text-[11px] font-bold uppercase tracking-widest text-rose-700">Pendapatan</p>
+                                <p class="text-lg font-black text-slate-900 sm:text-xl">{{ 'Rp ' . number_format($totalIncome, 0, ',', '.') }}</p>
+                            </div>
+                        </div>
+                    </section>
+                    @elseif($laporan->template === 'dashboard')
+                    <section class="mb-4 rounded-xl border border-white/10 bg-white/10 p-3 text-white shadow-sm backdrop-blur sm:p-4">
+                        <div class="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+                            <div>
+                                <p class="text-xs font-bold uppercase tracking-[0.18em] text-cyan-200">Infografik APBDesa - {{ $laporan->tahun }}</p>
+                                <h3 class="mt-1 text-xl font-black text-white sm:text-2xl">{{ $budgetDisplayTitle }}</h3>
+                            </div>
+                            <span class="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wide">{{ $laporan->jenis_laporan }}</span>
+                        </div>
+                        <div class="mt-4 grid gap-2 sm:grid-cols-3">
+                            <div class="rounded-lg border border-sky-300/20 bg-sky-400/10 p-3">
+                                <p class="text-[10px] font-bold uppercase tracking-widest text-sky-200">Pendapatan</p>
+                                <p class="mt-1 text-base font-black">{{ 'Rp ' . number_format($totalIncome, 0, ',', '.') }}</p>
+                            </div>
+                            <div class="rounded-lg border border-emerald-300/20 bg-emerald-400/10 p-3">
+                                <p class="text-[10px] font-bold uppercase tracking-widest text-emerald-200">Pembiayaan</p>
+                                <p class="mt-1 text-base font-black">{{ 'Rp ' . number_format($totalFinancing, 0, ',', '.') }}</p>
+                            </div>
+                            <div class="rounded-lg border border-orange-300/20 bg-orange-400/10 p-3">
+                                <p class="text-[10px] font-bold uppercase tracking-widest text-orange-200">Belanja</p>
+                                <p class="mt-1 text-base font-black">{{ 'Rp ' . number_format($totalExpense, 0, ',', '.') }}</p>
+                            </div>
+                        </div>
+                    </section>
+                    @else
+                    <section class="relative mb-4 overflow-hidden rounded-md border border-stone-300 bg-white/95 px-4 py-4 shadow-sm sm:px-5">
+                        <div aria-hidden="true" class="absolute inset-y-0 left-8 w-px bg-amber-700/20"></div>
+                        <div aria-hidden="true" class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-stone-700 via-amber-700 to-stone-500"></div>
+                        <div class="relative pl-5">
+                            <p class="text-xs font-bold uppercase tracking-[0.18em]" style="color: {{ $budgetTheme['accent'] }}">Infografik APBDesa - {{ $laporan->tahun }}</p>
+                            <h3 class="mt-1 text-xl font-black leading-tight text-stone-950 sm:text-2xl">{{ $budgetDisplayTitle }}</h3>
+                            <p class="mt-2 inline-flex rounded border border-stone-200 bg-stone-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-stone-600">{{ $laporan->jenis_laporan }}</p>
+                        </div>
+                        <div class="relative mt-3 rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-left sm:absolute sm:right-5 sm:top-5 sm:mt-0 sm:text-right">
+                            <p class="text-[11px] font-bold uppercase tracking-widest text-slate-500">Total Pendapatan</p>
+                            <p class="text-lg font-black" style="color: {{ $budgetTheme['accent'] }}">{{ 'Rp ' . number_format($totalIncome, 0, ',', '.') }}</p>
+                        </div>
+                    </section>
+                    @endif
+
+                    <div class="grid gap-3 @if($laporan->template === 'merah-putih') lg:grid-cols-[1.15fr_.85fr] @elseif($laporan->template === 'poster-batik') lg:grid-cols-[1.35fr_.65fr] @elseif($laporan->template === 'dashboard') lg:grid-cols-[.9fr_1.1fr] @else lg:grid-cols-2 @endif">
+                        <section class="overflow-hidden @if($laporan->template === 'dashboard') rounded-xl border border-white/10 bg-white/95 @elseif($laporan->template === 'rincian') rounded-sm border border-stone-300 bg-white/95 @else rounded-lg border border-slate-200 bg-white/90 @endif @if($laporan->template === 'nusantara') rounded-t-2xl border-t-4 border-t-emerald-700 @elseif($laporan->template === 'poster-batik') rounded-br-3xl @endif">
+                            <div class="flex flex-wrap items-end justify-between gap-2 @if($laporan->template === 'rincian') border-b-2 border-stone-300 bg-stone-100/70 @else border-b border-slate-200 @endif px-3 py-2">
+                                <div>
+                                    <p class="text-[11px] font-bold uppercase tracking-[0.14em]" style="color: {{ $budgetTheme['accent'] }}">Laporan Anggaran</p>
+                                    <h3 class="mt-1 text-base font-extrabold text-slate-900 sm:text-lg">Rincian Pendapatan</h3>
+                                </div>
+                                <span class="rounded-full px-3 py-1 text-xs font-bold text-white" style="background-color: {{ $budgetTheme['accent'] }}">{{ $incomeItems->count() }} sumber</span>
+                            </div>
+                            <div class="@if($laporan->template === 'rincian') divide-y divide-stone-200 @else divide-y divide-slate-100 @endif">
+                                @foreach($incomeItems as $item)
+                                <div class="flex items-center justify-between gap-3 px-3 py-2.5 text-xs sm:text-sm @if($laporan->template === 'rincian') odd:bg-white even:bg-stone-50/80 @endif">
+                                    <span class="text-slate-700">{{ $item->kategori }}</span>
+                                    <strong class="shrink-0 text-right text-slate-900">{{ 'Rp ' . number_format($item->jumlah, 0, ',', '.') }}</strong>
+                                </div>
+                                @endforeach
+                                <div class="flex items-center justify-between gap-3 @if($laporan->template === 'rincian') bg-stone-800 text-white @else bg-emerald-50 text-emerald-900 @endif px-3 py-2.5 text-xs font-extrabold sm:text-sm">
+                                    <span>Total Pendapatan</span>
+                                    <span>{{ 'Rp ' . number_format($totalIncome, 0, ',', '.') }}</span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="overflow-hidden @if($laporan->template === 'dashboard') rounded-xl border border-cyan-300/20 bg-slate-950 text-white @elseif($laporan->template === 'rincian') rounded-sm border border-stone-300 bg-white/95 @else rounded-lg border border-cyan-200 bg-cyan-50/70 @endif @if($laporan->template === 'nusantara') lg:mt-8 lg:rounded-bl-3xl @elseif($laporan->template === 'poster-batik') rounded-t-3xl @endif">
+                            <div class="px-3 py-2 text-sm font-bold uppercase tracking-wide text-white" style="background-color: {{ $budgetTheme['accent'] }}">Pembiayaan</div>
+                            <div class="@if($laporan->template === 'rincian') divide-y divide-stone-200 @else divide-y divide-cyan-100 @endif px-3">
+                                @foreach($financingItems as $item)
+                                <div class="flex items-center justify-between gap-3 py-2.5 text-xs sm:text-sm @if($laporan->template === 'rincian') odd:bg-white even:bg-stone-50/80 @endif">
+                                    <span class="@if($laporan->template === 'dashboard') text-slate-100 @else text-slate-700 @endif">{{ $item->kategori }}</span>
+                                    <strong class="shrink-0 text-right @if($laporan->template === 'dashboard') text-white @else text-slate-900 @endif">{{ 'Rp ' . number_format($item->jumlah, 0, ',', '.') }}</strong>
+                                </div>
+                                @endforeach
+                                <div class="flex items-center justify-between gap-3 py-2.5 text-xs font-extrabold @if($laporan->template === 'dashboard') text-white @else text-slate-950 @endif sm:text-sm">
+                                    <span>Total Pembiayaan</span>
+                                    <span>{{ 'Rp ' . number_format($totalFinancing, 0, ',', '.') }}</span>
+                                </div>
+                            </div>
+                            @if($laporan->keterangan)
+                            <p class="m-2 rounded-md bg-white/80 p-2 text-[10px] leading-4 text-slate-600">{{ $laporan->keterangan }}</p>
+                            @endif
+                        </section>
+                    </div>
+
+                    <section class="mt-4 @if($laporan->template === 'merah-putih') rounded-xl border border-rose-100 bg-rose-50/50 p-3 sm:p-4 @elseif($laporan->template === 'nusantara') rounded-t-[2rem] border border-emerald-100 bg-white/85 p-3 sm:p-4 @elseif($laporan->template === 'poster-batik') rounded-2xl border border-amber-100 bg-amber-50/50 p-3 sm:p-4 @elseif($laporan->template === 'dashboard') rounded-xl border border-white/10 bg-white/95 p-3 sm:p-4 @elseif($laporan->template === 'rincian') rounded-sm border border-stone-300 bg-white/95 p-3 sm:p-4 @else rounded-2xl border border-sky-100 bg-white/85 p-3 sm:p-4 @endif">
+                        <div class="flex flex-wrap items-end justify-between gap-3 border-b-2 pb-1.5" style="border-color: {{ $budgetTheme['accent'] }}">
+                            <div>
+                                <p class="text-[11px] font-bold uppercase tracking-[0.14em]" style="color: {{ $budgetTheme['accent'] }}">Ringkasan Alokasi</p>
+                                <h3 class="text-2xl font-black uppercase text-slate-950">Belanja</h3>
+                            </div>
+                            <p class="text-xl font-black" style="color: {{ $budgetTheme['accent'] }}">{{ 'Rp ' . number_format($totalExpense, 0, ',', '.') }}</p>
+                        </div>
+                        <div class="mt-4 grid items-center gap-5 @if($laporan->template === 'nusantara') md:grid-cols-[1fr_190px] @elseif($laporan->template === 'poster-batik') md:grid-cols-1 @elseif($laporan->template === 'dashboard') md:grid-cols-[1fr_190px] @else md:grid-cols-[190px_1fr] @endif">
+                            <div class="flex flex-col items-center gap-1.5 @if($laporan->template === 'nusantara') md:order-2 @elseif($laporan->template === 'poster-batik') md:mb-2 @elseif($laporan->template === 'dashboard') md:order-2 @endif">
+                                <div class="relative h-36 w-36 overflow-hidden border border-slate-200 shadow-inner sm:h-44 sm:w-44 @if($laporan->template === 'poster-batik') sm:h-48 sm:w-48 @endif"
+                                    style="background: {{ $pieBackground }}; border-radius: 50% !important; clip-path: circle(50% at 50% 50%);">
+                                    <div class="absolute inset-[34%] border-4 border-white bg-white shadow-sm"
+                                        style="border-radius: 50% !important; clip-path: circle(50% at 50% 50%);"></div>
+                                </div>
+                                <p class="text-center text-[10px] font-semibold text-slate-500">Proporsi alokasi belanja</p>
+                            </div>
+                            <div class="grid gap-1.5 @if($laporan->template === 'poster-batik') sm:grid-cols-2 xl:grid-cols-3 @elseif($laporan->template === 'nusantara') grid-cols-1 @else sm:grid-cols-2 @endif">
+                                @forelse($expensesByCategory as $category => $amount)
+                                @php
+                                $share = $totalExpense > 0 ? ((float) $amount / $totalExpense) * 100 : 0;
+                                $color = $pieColors[$loop->index % count($pieColors)];
+                                @endphp
+                                <div class="@if($laporan->template === 'dashboard') rounded-lg border border-slate-200 bg-slate-50 p-2.5 @elseif($laporan->template === 'rincian') rounded-sm border-b border-stone-200 bg-white/80 p-2 @else rounded-md border border-slate-200 bg-white/95 p-2 @endif @if($laporan->template === 'poster-batik') rounded-br-xl p-3 @elseif($laporan->template === 'nusantara') rounded-r-2xl border-l-4 @endif" @if($laporan->template === 'nusantara') style="border-left-color: {{ $color }}" @endif>
+                                    <div class="flex items-start justify-between gap-2">
+                                        <span class="text-xs font-bold leading-4 text-slate-700 sm:text-sm">{{ $category }}</span>
+                                        <span class="shrink-0 rounded px-1.5 py-0.5 text-xs font-extrabold text-white" style="background-color: {{ $color }}">{{ number_format($share, 1, ',', '.') }}%</span>
+                                    </div>
+                                    <p class="mt-1 text-xs font-extrabold text-slate-900 sm:text-sm">{{ 'Rp ' . number_format($amount, 0, ',', '.') }}</p>
+                                    <div class="mt-1.5 h-1 overflow-hidden rounded-full bg-slate-100">
+                                        <div class="h-full rounded-full" style="width: {{ min(100, ($amount / $maxExpense) * 100) }}%; background-color: {{ $color }}"></div>
+                                    </div>
+                                </div>
+                                @empty
+                                <p class="rounded-md bg-slate-50 p-4 text-sm text-slate-500 md:col-span-2">Belum ada data belanja.</p>
+                                @endforelse
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </article>
+            @endforeach
+        </div>
+        @else
+        <div class="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
+            <i class="fa-solid fa-chart-pie text-3xl text-slate-300"></i>
+            <h3 class="mt-4 text-lg font-bold text-slate-800">Infografis anggaran segera hadir</h3>
+            <p class="mt-1 text-sm text-slate-500">Laporan anggaran yang dipublikasikan akan ditampilkan di sini.</p>
+        </div>
+        @endif
+    </div>
+</section>
+
+
 <!-- konten 6 -->
-<section class="relative py-10 px-5 overflow-hidden bg-white reveal">
+<section class="relative py-10 px-5 overflow-hidden bg-white">
     <div class="absolute inset-0 opacity-[0.04]"
         style="background-image: radial-gradient(circle at 1px 1px, rgba(0,0,0,0.12) 1px, transparent 0); background-size: 28px 28px;">
     </div>
 
-    <div class="relative z-10 max-w-5xl mx-auto text-center">
+    <div class="relative z-10 max-w-5xl mx-auto text-center reveal">
         <p class="text-xs sm:text-sm font-semibold tracking-[0.3em] text-gray-500 uppercase">
             Support By
         </p>
-        <h3 class="mt-3 text-2xl sm:text-3xl font-bold text-gray-900 tracking-wide">
-            Universitas Bhinneka PGRI
-        </h3>
-        <div class="mx-auto mt-4 h-[3px] w-16 bg-orange-400"></div>
+        <img src="{{ asset('img/ubhi-logo.jpg') }}" alt="logo"
+            class="w-32 h-auto object-cover mx-auto reveal-up">
+        <div class="mx-auto mt-4 h-[3px] w-16 bg-orange-400 reveal-up"></div>
     </div>
 </section>
-@include('partials.footer')
+
+@if($laporanAnggaran->isNotEmpty())
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const selector = document.getElementById('landingBudgetReport');
+    if (!selector) return;
+
+    const panels = document.querySelectorAll('[data-landing-budget-panel]');
+    const showSelectedReport = () => {
+        panels.forEach((panel) => {
+            panel.hidden = panel.dataset.landingBudgetPanel !== selector.value;
+        });
+    };
+
+    selector.addEventListener('change', showSelectedReport);
+    showSelectedReport();
+});
+</script>
+@endpush
+@endif
 
 <div class="fixed bottom-4 right-5 z-50">
     <button id="chatToggle" type="button"
@@ -824,16 +928,42 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addBotMessage(text) {
+        const normalized = normalizeNewlines(text);
         const wrap = document.createElement('div');
         wrap.className = 'slide-in-left flex items-start gap-3';
         wrap.innerHTML =
             `<img src=\"{{ asset('img/cs.png') }}\" alt=\"Chatbot Simpeda\" class=\"h-8 w-8 rounded-full object-contain\">
              <div class=\"max-w-[85%] rounded-3xl rounded-tr-sm bg-black px-4 py-3 text-sm font-medium text-white\">
                  <p class=\"mb-2 text-xs font-bold text-gray-500\">Nara</p>
-                 <p class=\"text-xs leading-relaxed text-neutral-200\">${escapeHtml(text)}</p>
+                 <p class=\"whitespace-pre-line text-xs leading-relaxed text-neutral-200\">${escapeHtml(normalized)}</p>
              </div>`;
         list.appendChild(wrap);
         list.scrollTop = list.scrollHeight;
+    }
+
+    function addTypingIndicator() {
+        const existing = document.getElementById('chat-typing-indicator-public');
+        if (existing) return;
+        const wrap = document.createElement('div');
+        wrap.id = 'chat-typing-indicator-public';
+        wrap.className = 'slide-in-left flex items-start gap-3';
+        wrap.innerHTML =
+            `<img src=\"{{ asset('img/cs.png') }}\" alt=\"Chatbot Simpeda\" class=\"h-8 w-8 rounded-full object-contain\">
+             <div class=\"rounded-2xl rounded-tr-sm bg-black px-4 py-3 text-sm font-medium text-white\">
+                 <div class=\"mb-2 text-xs font-bold text-gray-500\">Nara sedang mengetik...</div>
+                 <div class=\"flex items-center gap-2\">
+                     <span class=\"typing-dot h-2 w-2 rounded-full bg-orange-500\"></span>
+                     <span class=\"typing-dot h-2 w-2 rounded-full bg-orange-500\"></span>
+                     <span class=\"typing-dot h-2 w-2 rounded-full bg-orange-500\"></span>
+                 </div>
+             </div>`;
+        list.appendChild(wrap);
+        list.scrollTop = list.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+        const typing = document.getElementById('chat-typing-indicator-public');
+        if (typing) typing.remove();
     }
 
     function escapeHtml(text) {
@@ -845,11 +975,20 @@ document.addEventListener('DOMContentLoaded', () => {
             .replaceAll("'", '&#039;');
     }
 
+    function normalizeNewlines(text) {
+        return String(text)
+            .replace(/\\r\\n/g, '\n')
+            .replace(/\\n/g, '\n')
+            .replace(/\\r/g, '\n');
+    }
+
     async function sendMessage(message) {
         addUserMessage(message);
         input.value = '';
         sendBtn.disabled = true;
         sendBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        removeTypingIndicator();
+        addTypingIndicator();
 
         try {
             const response = await fetch("{{ route('chatbot.public.message') }}", {
@@ -865,8 +1004,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const data = await response.json();
+            removeTypingIndicator();
             addBotMessage(data.reply || 'Maaf, aku belum paham. Coba tanya dengan kalimat lain ya 🙏');
         } catch (error) {
+            removeTypingIndicator();
             addBotMessage('Maaf, chatbot lagi bermasalah. Coba lagi ya 🙏');
         } finally {
             sendBtn.disabled = false;

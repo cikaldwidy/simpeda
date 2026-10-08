@@ -108,86 +108,95 @@
 @section('content')
 @include('partials.nav')
 
-<section class="relative min-h-screen bg-gray-100 pt-28 pb-16 overflow-hidden">
-    <div class="absolute inset-x-0 top-0 z-0 h-[260px] sm:h-[290px] overflow-hidden">
-        <img src="{{ asset('img/artikel-img.jpg') }}" alt="Artikel Desa"
-            class="h-full w-full object-cover object-center">
-        <div class="absolute inset-0 bg-black/70"></div>
-    </div>
+<div class="bg-gray-100">
+    <header class="sticky top-0 z-0 h-[260px] sm:h-[290px]">
+        <div class="absolute inset-0 overflow-hidden">
+            <img src="{{ asset('img/artikel-img.jpg') }}" alt="Artikel Desa"
+                class="h-full w-full object-cover object-center">
+            <div class="absolute inset-0 bg-black/60"></div>
+        </div>
+        <div
+            class="relative z-10 mx-auto flex h-full max-w-6xl flex-col items-center justify-center px-2 text-center md:px-4">
+            <div class="mt-16 sm:mt-20 reveal">
+                <h1 class="text-3xl md:text-6xl font-extrabold tracking-[0.08em] text-white uppercase">Artikel Desa</h1>
+                <p class="text-sm md:text-base text-white/80">Informasi artikel dan ulasan kegiatan desa.</p>
+            </div>
+        </div>
+    </header>
 
-    <div
-        class="absolute left-1/2 -translate-x-1/2 top-[200px] sm:top-[230px] w-[140%] h-32 bg-gray-100 rounded-t-[100%]">
-    </div>
-
-    <div class="relative z-10 mx-auto w-full max-w-6xl px-2 md:px-4">
-
-        <div class="mb-10 text-center mt-0 md:mt-6 reveal reveal-delay-1">
-            <h1 class="text-3xl md:text-6xl font-extrabold tracking-[0.08em] text-white uppercase">Artikel Desa</h1>
-            <p class="text-sm md:text-base text-white/80">Informasi artikel dan ulasan kegiatan desa.</p>
+    <main class="relative z-10 -mt-[60px] sm:-mt-[50px]">
+        <div class="relative h-16 w-full overflow-hidden">
+            <div class="absolute -top-px left-1/2 h-[65px] w-[150%] -translate-x-1/2 rounded-t-[50%] bg-gray-100"></div>
         </div>
 
-        <div class="py-5 sm:hidden reveal reveal-delay-3">
-            <form method="GET" action="{{ route('artikel') }}"
-                class="flex items-center gap-2 rounded-lg bg-white p-2 shadow-sm">
-                <input type="text" name="q" value="{{ $q ?? '' }}" placeholder="Cari artikel..."
-                    class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-orange-500 focus:outline-none">
-                <button type="submit" class="rounded-md bg-orange-500 px-3 py-2 text-xs font-semibold text-white">
-                    Cari
-                </button>
-            </form>
-        </div>
+        <div class="bg-gray-100 pb-16">
+            <div class="relative z-10 mx-auto w-full px-2 md:px-12">
 
-        @if($articles->count())
-        <div class="mt-10 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 reveal reveal-delay-2"
-            data-reveal-group>
-            @foreach($articles as $item)
-            <article
-                class="reveal-item group bg-white overflow-hidden border border-1 shadow-sm hover:shadow-sm transition duration-300">
-                <a href="{{ route('artikel.show', $item->slug) }}" class="relative block overflow-hidden">
-                    <img src="{{ $item->gambar ? asset('storage/' . $item->gambar) : asset('img/logo_TA.png') }}"
-                        alt="{{ $item->judul }}" class="h-48 sm:h-52 lg:h-64 w-full object-cover">
-                    <div class="absolute inset-0 bg-black opacity-0 transition duration-300 group-hover:opacity-70">
-                    </div>
-                    <span
-                        class="absolute inset-0 flex items-center justify-center md:text-4xl text-2xl font-light text-white opacity-0 transition duration-300 group-hover:opacity-100">
-                        <i class="fa-solid fa-plus font-medium"></i>
-                    </span>
-                </a>
-
-                <div class="p-5 sm:p-6 sm:p-7">
-                    <p class="text-sm text-gray-500 mb-3 sm:mb-4 tracking-[1px]">
-                        {{ $item->created_at->format('d/m/Y') }}</p>
-
-                    <a href="{{ route('artikel.show', $item->slug) }}"
-                        class="text-xl sm:text-3xl lg:text-3xl font-extrabold uppercase tracking-[1px] text-gray-800 hover:text-orange-500 hover:underline">
-                        {{ \Illuminate\Support\Str::limit($item->judul, 100) }}
-                    </a>
-
-                    <p class="mt-4 sm:mt-5 text-base lg:text-lg leading-relaxed text-gray-600 tracking-[0.5px]">
-                        {{ \Illuminate\Support\Str::limit(strip_tags($item->isi), 180) }}
-                    </p>
-
-                    <a href="{{ route('artikel.show', $item->slug) }}"
-                        class="inline-block mt-6 text-sm sm:text-md font-semibold text-gray-800 hover:text-orange-500 hover:underline">
-                        Lihat Detail
-                    </a>
+                <div class="sm:hidden reveal reveal-delay-3 p-5">
+                    <form method="GET" action="{{ route('artikel') }}"
+                        class="flex items-center gap-2 rounded-md bg-white p-2 shadow-sm">
+                        <input type="text" name="q" value="{{ $q ?? '' }}" placeholder="Cari berita..."
+                            class="w-full rounded-md px-3 py-2 text-sm text-slate-700 focus:border focus:border-orange-500 focus:outline-none focus:ring-0 focus:ring-orange-500">
+                        <button type="submit"
+                            class="rounded-md bg-orange-500 px-3 py-2 text-xs font-semibold text-white">
+                            Cari
+                        </button>
+                    </form>
                 </div>
-            </article>
-            @endforeach
-        </div>
 
-        <div class="mt-10">
-            {{ $articles->links() }}
-        </div>
-        @else
-        <div class="bg-white p-8 shadow text-center text-gray-600">
-            Belum ada artikel yang dipublikasikan.
-        </div>
-        @endif
-    </div>
-</section>
+                @if($articles->count())
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 reveal reveal-delay-2"
+                    data-reveal-group>
+                    @foreach($articles as $item)
+                    <article
+                        class="reveal-item group bg-white overflow-hidden border border-1 shadow-sm hover:shadow-sm transition duration-300">
+                        <a href="{{ route('artikel.show', $item->slug) }}" class="relative block overflow-hidden">
+                            <img src="{{ $item->gambar ? asset('storage/' . $item->gambar) : asset('img/logo_TA.png') }}"
+                                alt="{{ $item->judul }}" class="h-48 sm:h-52 lg:h-64 w-full object-cover">
+                            <div
+                                class="absolute inset-0 bg-black opacity-0 transition duration-300 group-hover:opacity-70">
+                            </div>
+                            <span
+                                class="absolute inset-0 flex items-center justify-center md:text-4xl text-2xl font-light text-white opacity-0 transition duration-300 group-hover:opacity-100">
+                                <i class="fa-solid fa-plus font-medium"></i>
+                            </span>
+                        </a>
 
-@include('partials.footer')
+                        <div class="p-5 sm:p-6 sm:p-7">
+                            <p class="text-sm text-gray-500 mb-3 sm:mb-4 tracking-[1px]">
+                                {{ $item->created_at->format('d/m/Y') }}</p>
+
+                            <a href="{{ route('artikel.show', $item->slug) }}"
+                                class="text-xl sm:text-3xl lg:text-3xl font-extrabold uppercase tracking-[1px] text-gray-800 hover:text-orange-500 hover:underline">
+                                {{ \Illuminate\Support\Str::limit($item->judul, 100) }}
+                            </a>
+
+                            <p class="mt-4 sm:mt-5 text-base lg:text-lg leading-relaxed text-gray-600 tracking-[0.5px]">
+                                {{ \Illuminate\Support\Str::limit(strip_tags($item->isi), 180) }}
+                            </p>
+
+                            <a href="{{ route('artikel.show', $item->slug) }}"
+                                class="inline-block mt-6 text-sm sm:text-md font-semibold text-gray-800 hover:text-orange-500 hover:underline">
+                                Lihat Detail
+                            </a>
+                        </div>
+                    </article>
+                    @endforeach
+                </div>
+
+                <div class="mt-10">
+                    {{ $articles->links() }}
+                </div>
+                @else
+                <div class="bg-white p-8 shadow text-center text-gray-600">
+                    Belum ada artikel yang dipublikasikan.
+                </div>
+                @endif
+            </div>
+        </div>
+    </main>
+</div>
+
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {

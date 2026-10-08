@@ -2,15 +2,15 @@
 $logoSrc = !empty($isPdf) && empty($isPreview)
 ? public_path('img/logo_TA.png')
 : asset('img/logo_TA.png');
-$regDesNomor = '474.1/' . ($surat->nomor_urut ?? '-') . '/' . ($user->desa_id ?? '-') . '/' . ($surat->tahun ?? optional($surat->tanggal_surat)->format('Y'));
+$regDesNomor = $surat->nomor_surat ?: 'Belum diisi';
 @endphp
 <style>
 .doc-wrap {
     width: 100%;
-    font-family: Arial, sans-serif;
+    font-family: "Times New Roman", Times, serif;
     color: #111827;
-    font-size: 12px;
-    line-height: 1.55;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 .doc-head {
@@ -67,12 +67,18 @@ $regDesNomor = '474.1/' . ($surat->nomor_urut ?? '-') . '/' . ($user->desa_id ??
 .title-4 {
     margin: 0;
     text-align: center;
-    font-size: 12px;
+    font-size: 14px;
+    font-style: italic;
 }
 
 .doc-center {
     text-align: center;
-    margin-top: 16px;
+    margin-top: 14px;
+}
+
+.doc-title-wrap {
+    display: inline-block;
+    text-align: center;
 }
 
 .doc-name {
@@ -80,12 +86,23 @@ $regDesNomor = '474.1/' . ($surat->nomor_urut ?? '-') . '/' . ($user->desa_id ??
     font-size: 16px;
     font-weight: 700;
     text-transform: uppercase;
-    text-decoration: underline;
+
+}
+
+.doc-underline {
+    display: inline-block;
+    border-bottom: 1px solid #111827;
+    line-height: 0;
+    margin: 0;
+}
+
+.doc-underline .doc-no-text {
+    visibility: hidden;
 }
 
 .doc-no {
-    margin: 4px 0 0;
-    font-size: 12px;
+    margin: -20px 0 0;
+    font-size: 14px;
     font-weight: 700;
 }
 
@@ -112,7 +129,7 @@ $regDesNomor = '474.1/' . ($surat->nomor_urut ?? '-') . '/' . ($user->desa_id ??
 }
 
 .colon {
-    width: 12px;
+    width: 14px;
     text-align: center;
 }
 
@@ -155,8 +172,11 @@ $regDesNomor = '474.1/' . ($surat->nomor_urut ?? '-') . '/' . ($user->desa_id ??
     </div>
 
     <div class="doc-center">
-        <p class="doc-name">Surat Keterangan Domisili</p>
-        <p class="doc-no">Reg.des.Nomor : {{ $regDesNomor }}</p>
+        <div class="doc-title-wrap">
+            <p class="doc-name">Surat Keterangan Domisili</p>
+            <div class="doc-underline"><span class="doc-no-text">Reg.des.Nomor : {{ $regDesNomor }}</span></div>
+            <p class="doc-no">Reg.des.Nomor : {{ $regDesNomor }}</p>
+        </div>
     </div>
 
     <div class="mt-20">
@@ -209,7 +229,7 @@ $regDesNomor = '474.1/' . ($surat->nomor_urut ?? '-') . '/' . ($user->desa_id ??
         <p>
             Menerangkan yang tersebut di atas benar-benar penduduk Desa Wonorejo Kecamatan Sumbergempol
             Kabupaten Tulungagung, dan yang bersangkutan benar-benar berdomisili di
-            {{ implode(' ', $alamatDomisiliLines) }}.
+            {{ implode(' ', $alamatDomisiliLines) }} Provinsi {{ $user->provinsi_id ?? '-' }}.
         </p>
         <p>Demikian Surat Keterangan ini dibuat untuk dapat dipergunakan sebagaimana mestinya.</p>
     </div>

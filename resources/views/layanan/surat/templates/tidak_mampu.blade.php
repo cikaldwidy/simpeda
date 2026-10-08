@@ -2,8 +2,7 @@
 $logoSrc = !empty($isPdf) && empty($isPreview)
 ? public_path('img/logo_TA.png')
 : asset('img/logo_TA.png');
-$regDesNomor = '474.1/' . ($surat->nomor_urut ?? '-') . '/' . ($user->desa_id ?? '-') . '/' . ($surat->tahun ??
-optional($surat->tanggal_surat)->format('Y'));
+$regDesNomor = $surat->nomor_surat ?: 'Belum diisi';
 $statusPerkawinan = match ($surat->status_perkawinan) {
 'belum_kawin' => 'Belum Kawin',
 'kawin' => 'Kawin',
@@ -16,10 +15,10 @@ default => '-',
 <style>
 .doc-wrap {
     width: 100%;
-    font-family: Arial, sans-serif;
+    font-family: "Times New Roman", Times, serif;
     color: #111827;
-    font-size: 12px;
-    line-height: 1.55;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 .doc-head {
@@ -62,12 +61,18 @@ default => '-',
 .title-4 {
     margin: 0;
     text-align: center;
-    font-size: 12px;
+    font-size: 14px;
+
 }
 
 .doc-center {
     text-align: center;
-    margin-top: 16px;
+    margin-top: 14px;
+}
+
+.doc-title-wrap {
+    display: inline-block;
+    text-align: center;
 }
 
 .doc-name {
@@ -75,21 +80,32 @@ default => '-',
     font-size: 16px;
     font-weight: 700;
     text-transform: uppercase;
-    text-decoration: underline;
+
+}
+
+.doc-underline {
+    display: inline-block;
+    border-bottom: 1px solid #111827;
+    line-height: 0;
+    margin: 0;
+}
+
+.doc-underline .doc-no-text {
+    visibility: hidden;
 }
 
 .doc-no {
-    margin: 4px 0 0;
-    font-size: 12px;
+    margin: -20px 0 0;
+    font-size: 14px;
     font-weight: 700;
 }
 
 .mt-20 {
-    margin-top: 20px;
+    margin-top: 14px;
 }
 
 .mt-16 {
-    margin-top: 16px;
+    margin-top: 10px;
 }
 
 .tbl {
@@ -107,8 +123,17 @@ default => '-',
 }
 
 .colon {
-    width: 12px;
+    width: 14px;
     text-align: center;
+}
+
+.value-indent {
+    padding-left: 14px;
+}
+
+.tbl-indent {
+    margin-left: 24px;
+    width: calc(100% - 24px);
 }
 
 .alamat-line {
@@ -119,10 +144,14 @@ default => '-',
     text-align: justify;
 }
 
+.para-indent {
+    text-indent: 24px;
+}
+
 .sign-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 12px;
+    margin-top: 14px;
 }
 
 .sign-table td {
@@ -156,12 +185,15 @@ default => '-',
     </div>
 
     <div class="doc-center">
-        <p class="doc-name">Surat Keterangan Tidak Mampu</p>
-        <p class="doc-no">Reg.des.Nomor : {{ $regDesNomor }}</p>
+        <div class="doc-title-wrap">
+            <p class="doc-name">Surat Keterangan Tidak Mampu</p>
+            <div class="doc-underline"><span class="doc-no-text">Reg.des.Nomor : {{ $regDesNomor }}</span></div>
+            <p class="doc-no">Reg.des.Nomor : {{ $regDesNomor }}</p>
+        </div>
     </div>
 
     <div class="mt-20">
-        <p class="justify">
+        <p class="justify para-indent">
             Yang bertanda tangan di bawah ini kami Kepala Desa Wonorejo Kecamatan Sumbergempol Kabupaten Tulungagung,
             dengan ini menerangkan bahwa :
         </p>
@@ -169,26 +201,26 @@ default => '-',
 
     <div class="mt-16">
         <p>Menerangkan dengan sesungguhnya bahwa orang yang tercantum di bawah ini :</p>
-        <table class="tbl">
+        <table class="tbl tbl-indent">
             <tr>
                 <td class="label">Nama</td>
                 <td class="colon">:</td>
-                <td>{{ strtoupper($user->name) }}</td>
+                <td class="value-indent">{{ strtoupper($user->name) }}</td>
             </tr>
             <tr>
                 <td class="label">Tempat Tanggal Lahir</td>
                 <td class="colon">:</td>
-                <td>{{ $ttlFormatted }}</td>
+                <td class="value-indent">{{ $ttlFormatted }}</td>
             </tr>
             <tr>
                 <td class="label">NIK</td>
                 <td class="colon">:</td>
-                <td>{{ $user->nik }}</td>
+                <td class="value-indent">{{ $user->nik }}</td>
             </tr>
             <tr>
                 <td class="label">Alamat</td>
                 <td class="colon">:</td>
-                <td>
+                <td class="value-indent">
                     @foreach($alamatDomisiliLines as $line)
                     <span class="alamat-line">{{ $line }}</span>
                     @endforeach
@@ -197,17 +229,20 @@ default => '-',
             <tr>
                 <td class="label">Jenis Kelamin</td>
                 <td class="colon">:</td>
-                <td>{{ ucfirst((string) $user->jenis_kelamin) }}</td>
+                <td class="value-indent">{{ ucfirst((string) $user->jenis_kelamin) }}</td>
             </tr>
             <tr>
                 <td class="label">Status Perkawinan</td>
                 <td class="colon">:</td>
-                <td>{{ $statusPerkawinan }}</td>
+                <td class="value-indent">{{ $statusPerkawinan }}</td>
             </tr>
             <tr>
                 <td class="label">Pekerjaan</td>
                 <td class="colon">:</td>
-                <td>{{ $surat->pekerjaan ?: '-' }}</td>
+                <td class="value-indent">
+                    {{ mb_strtoupper(mb_substr($surat->pekerjaan, 0, 1)) . mb_strtolower(mb_substr($surat->pekerjaan, 1)) }}
+                </td>
+
             </tr>
         </table>
     </div>
@@ -216,9 +251,9 @@ default => '-',
         <p>
             Menerangkan yang tersebut di atas benar-benar penduduk Desa Wonorejo Kecamatan Sumbergempol Kabupaten
             Tulungagung dan kondisi ekonominya tergolong tidak mampu.
-            Surat keterangan ini dipergunakan untuk keperluan <strong>{{ $surat->keperluan ?: '-' }}</strong>
+            Surat keterangan ini dipergunakan untuk keperluan {{ $surat->keperluan ?: '-' }}
             @if(!empty($surat->catatan))
-            di <strong>{{ $surat->catatan }}</strong>.
+            di {{ $surat->catatan }}.
             @else
             .
             @endif
@@ -237,8 +272,12 @@ default => '-',
             </td>
         </tr>
         <tr>
-            <td><div class="sign-gap"></div></td>
-            <td><div class="sign-gap"></div></td>
+            <td>
+                <div class="sign-gap"></div>
+            </td>
+            <td>
+                <div class="sign-gap"></div>
+            </td>
         </tr>
         <tr>
             <td>

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Artikel;
+use App\Models\ContentView;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
@@ -32,8 +34,17 @@ class ArtikelController extends Controller
         $artikel = Artikel::where('slug', $slug)
             ->where('is_published', true)
             ->firstOrFail();
-        if (Schema::hasColumn('artikels', 'view_count')) {
-            $artikel->increment('view_count');
+        if (Auth::check() && Schema::hasColumn('artikels', 'view_count')) {
+            $isNewView = ContentView::insertOrIgnore([
+                'user_id' => Auth::id(),
+                'viewable_type' => Artikel::class,
+                'viewable_id' => $artikel->id,
+                'viewed_at' => now(),
+            ]);
+
+            if ($isNewView > 0) {
+                $artikel->increment('view_count');
+            }
         }
 
         $previousArticle = Artikel::where('is_published', true)
@@ -52,7 +63,12 @@ class ArtikelController extends Controller
             ->take(3)
             ->get();
 
-        return view('landing.detail-artikel', compact('artikel', 'previousArticle', 'nextArticle', 'recentPosts'));
+        $comments = $artikel->comments()
+            ->where('is_approved', true)
+            ->latest()
+            ->get();
+
+        return view('landing.detail-artikel', compact('artikel', 'previousArticle', 'nextArticle', 'recentPosts', 'comments'));
     }
 
     public function adminIndex(Request $request)
@@ -73,7 +89,7 @@ class ArtikelController extends Controller
                 $query->where('is_published', $status === 'published');
             })
             ->latest()
-            ->paginate(12)
+            ->paginate(10)
             ->withQueryString();
 
         return view('admin.artikel.index', compact('artikel', 'q', 'status'));
@@ -154,5 +170,22 @@ class ArtikelController extends Controller
 
         return redirect()->route($routePrefix . '.artikel.index')
             ->with('success', 'Artikel berhasil dihapus');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $data = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['required', 'integer', 'distinct', 'exists:artikels,id'],
+        ]);
+
+        $artikel = Artikel::whereKey($data['ids'])->get();
+        foreach ($artikel as $item) {
+            $item->delete();
+        }
+        $routePrefix = ($request->user()?->role ?? null) === 'petugas' ? 'petugas' : 'admin';
+
+        return redirect()->route($routePrefix . '.artikel.index')
+            ->with('success', $artikel->count() . ' artikel berhasil dihapus.');
     }
 }

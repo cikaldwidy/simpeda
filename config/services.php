@@ -41,4 +41,9 @@ return [
         'credentials' => env('DIALOGFLOW_CREDENTIALS', env('GOOGLE_APPLICATION_CREDENTIALS')),
     ],
 
+    'recaptcha' => [
+        'site_key' => env('RECAPTCHA_SITE_KEY'),
+        'secret' => env('RECAPTCHA_SECRET_KEY'),
+    ],
+
 ];

@@ -54,6 +54,17 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        $role = Auth::user()?->role;
+        if (in_array($role, ['admin', 'petugas'], true)) {
+            Auth::guard('web')->logout();
+            $this->session()->invalidate();
+            $this->session()->regenerateToken();
+
+            throw ValidationException::withMessages([
+                'nik' => 'Akun ini khusus admin/petugas. Silakan gunakan login yang sesuai.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

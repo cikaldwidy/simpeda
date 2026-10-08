@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Berita;
+use App\Models\ContentView;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
@@ -32,8 +34,17 @@ class BeritaController extends Controller
         $berita = Berita::where('slug', $slug)
             ->where('is_published', true)
             ->firstOrFail();
-        if (Schema::hasColumn('beritas', 'view_count')) {
-            $berita->increment('view_count');
+        if (Auth::check() && Schema::hasColumn('beritas', 'view_count')) {
+            $isNewView = ContentView::insertOrIgnore([
+                'user_id' => Auth::id(),
+                'viewable_type' => Berita::class,
+                'viewable_id' => $berita->id,
+                'viewed_at' => now(),
+            ]);
+
+            if ($isNewView > 0) {
+                $berita->increment('view_count');
+            }
         }
 
         $previousArticle = Berita::where('is_published', true)
@@ -52,7 +63,12 @@ class BeritaController extends Controller
             ->take(3)
             ->get();
 
-        return view('landing.detail-berita', compact('berita', 'previousArticle', 'nextArticle', 'recentPosts'));
+        $comments = $berita->comments()
+            ->where('is_approved', true)
+            ->latest()
+            ->get();
+
+        return view('landing.detail-berita', compact('berita', 'previousArticle', 'nextArticle', 'recentPosts', 'comments'));
     }
 
     /* =========================
@@ -77,7 +93,7 @@ class BeritaController extends Controller
                 $query->where('is_published', $status === 'published');
             })
             ->latest()
-            ->paginate(12)
+            ->paginate(10)
             ->withQueryString();
 
         return view('admin.berita.index', compact('berita', 'q', 'status'));
@@ -161,5 +177,22 @@ class BeritaController extends Controller
 
         return redirect()->route($routePrefix . '.berita.index')
                          ->with('success', 'Berita berhasil dihapus');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $data = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['required', 'integer', 'distinct', 'exists:beritas,id'],
+        ]);
+
+        $berita = Berita::whereKey($data['ids'])->get();
+        foreach ($berita as $item) {
+            $item->delete();
+        }
+        $routePrefix = ($request->user()?->role ?? null) === 'petugas' ? 'petugas' : 'admin';
+
+        return redirect()->route($routePrefix . '.berita.index')
+            ->with('success', $berita->count() . ' berita berhasil dihapus.');
     }
 }

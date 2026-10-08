@@ -20,6 +20,22 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
+     * Display the admin login view.
+     */
+    public function createAdmin(): View
+    {
+        return view('auth.admin-login');
+    }
+
+    /**
+     * Display the petugas login view.
+     */
+    public function createPetugas(): View
+    {
+        return view('auth.petugas-login');
+    }
+
+    /**
      * Handle an incoming authentication request.
      */
     public function store(LoginRequest $request): RedirectResponse
@@ -45,16 +61,86 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
+     * Handle an incoming admin authentication request.
+     */
+    public function storeAdmin(Request $request): RedirectResponse
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
+        ]);
+
+        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+            return back()
+                ->withErrors(['email' => 'Email/password salah.'])
+                ->onlyInput('email');
+        }
+
+        if (($request->user()?->role ?? null) !== 'admin') {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()
+                ->withErrors(['email' => 'Akun ini bukan admin. Silakan gunakan login pengguna/petugas.'])
+                ->onlyInput('email');
+        }
+
+        $request->session()->regenerate();
+        $request->session()->forget('url.intended');
+
+        return redirect()->route('admin.dashboard');
+    }
+
+    /**
+     * Handle an incoming petugas authentication request.
+     */
+    public function storePetugas(Request $request): RedirectResponse
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
+        ]);
+
+        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+            return back()
+                ->withErrors(['email' => 'Email/password salah.'])
+                ->onlyInput('email');
+        }
+
+        if (($request->user()?->role ?? null) !== 'petugas') {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()
+                ->withErrors(['email' => 'Akun ini bukan petugas. Silakan gunakan login pengguna/admin.'])
+                ->onlyInput('email');
+        }
+
+        $request->session()->regenerate();
+        $request->session()->forget('url.intended');
+
+        return redirect()->route('petugas.dashboard');
+    }
+
+    /**
      * Destroy an authenticated session.
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $role = $request->user()?->role;
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return match ($role) {
+            'admin' => redirect()->route('admin.login'),
+            'petugas' => redirect()->route('petugas.login'),
+            default => redirect('/'),
+        };
     }
 }

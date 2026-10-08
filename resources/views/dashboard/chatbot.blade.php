@@ -234,7 +234,7 @@
 
 @section('dashboard_content')
 <div
-    class="relative mx-auto flex w-full lg:max-w-5xl h-[calc(100vh-200px)] sm:h-[calc(150vh-9rem)] flex-col overflow-hidden rounded-md bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 shadow-2xl">
+    class="relative flex h-[calc(100dvh-5rem)] w-full flex-col overflow-hidden rounded-md bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 shadow-2xl md:h-[calc(100dvh-6rem)]">
     <!-- Animated Background -->
     <div class="pointer-events-none absolute inset-0 animated-grid opacity-30"></div>
 
@@ -277,7 +277,7 @@
                         class="max-w-[90%] sm:max-w-[85%] rounded-3xl rounded-tr-sm bg-black px-4 py-3 text-sm font-medium text-white">
                         <p class="mb-5 text-sm font-bold text-gray-500">Nara</p>
                         <p class="text-xs sm:text-sm leading-relaxed text-neutral-200">
-                            Hai, saya <span class="font-bold text-white">Nara👋</span>. Ada yang bisa saya
+                            Hai, saya <span class="font-bold text-white">Nara 👋😊</span>. Ada yang bisa saya
                             bantu?
                         </p>
                     </div>
@@ -352,6 +352,46 @@
                         Surat
                         Kematian</span>
                 </button>
+
+                <button type="button" data-quick-message="buat surat kelahiran"
+                    class="quick-btn group flex items-center gap-2 sm:gap-3 rounded-lg border border-neutral-800 bg-neutral-900 px-2 sm:px-4 py-1.5 sm:py-2 text-left transition-all hover:border-orange-500/50 hover:shadow-lg hover:shadow-orange-500/10">
+                    <i class="fa-solid fa-file-circle-plus text-xs sm:text-sm text-orange-400"></i>
+                    <span class="text-xs sm:text-sm font-semibold text-neutral-200 group-hover:text-orange-300">Buat
+                        Surat
+                        Kelahiran</span>
+                </button>
+
+                <button type="button" data-quick-message="buat surat usaha"
+                    class="quick-btn group flex items-center gap-2 sm:gap-3 rounded-lg border border-neutral-800 bg-neutral-900 px-2 sm:px-4 py-1.5 sm:py-2 text-left transition-all hover:border-orange-500/50 hover:shadow-lg hover:shadow-orange-500/10">
+                    <i class="fa-solid fa-file-circle-plus text-xs sm:text-sm text-orange-400"></i>
+                    <span class="text-xs sm:text-sm font-semibold text-neutral-200 group-hover:text-orange-300">Buat
+                        Surat
+                        Usaha</span>
+                </button>
+
+                <button type="button" data-quick-message="buat surat belum menikah"
+                    class="quick-btn group flex items-center gap-2 sm:gap-3 rounded-lg border border-neutral-800 bg-neutral-900 px-2 sm:px-4 py-1.5 sm:py-2 text-left transition-all hover:border-orange-500/50 hover:shadow-lg hover:shadow-orange-500/10">
+                    <i class="fa-solid fa-file-circle-plus text-xs sm:text-sm text-orange-400"></i>
+                    <span class="text-xs sm:text-sm font-semibold text-neutral-200 group-hover:text-orange-300">Buat
+                        Surat
+                        Belum Menikah</span>
+                </button>
+
+                <button type="button" data-quick-message="buat surat kehilangan"
+                    class="quick-btn group flex items-center gap-2 sm:gap-3 rounded-lg border border-neutral-800 bg-neutral-900 px-2 sm:px-4 py-1.5 sm:py-2 text-left transition-all hover:border-orange-500/50 hover:shadow-lg hover:shadow-orange-500/10">
+                    <i class="fa-solid fa-file-circle-plus text-xs sm:text-sm text-orange-400"></i>
+                    <span class="text-xs sm:text-sm font-semibold text-neutral-200 group-hover:text-orange-300">Buat
+                        Surat
+                        Kehilangan</span>
+                </button>
+
+                <button type="button" data-quick-message="buat surat penghasilan orang tua"
+                    class="quick-btn group flex items-center gap-2 sm:gap-3 rounded-lg border border-neutral-800 bg-neutral-900 px-2 sm:px-4 py-1.5 sm:py-2 text-left transition-all hover:border-orange-500/50 hover:shadow-lg hover:shadow-orange-500/10">
+                    <i class="fa-solid fa-file-circle-plus text-xs sm:text-sm text-orange-400"></i>
+                    <span class="text-xs sm:text-sm font-semibold text-neutral-200 group-hover:text-orange-300">Buat
+                        Surat
+                        Penghasilan Orang Tua</span>
+                </button>
             </div>
         </div>
     </div>
@@ -371,6 +411,17 @@
     if (!form || !input || !sendBtn || !list) return;
 
     const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+    // Reset chatbot session on page load/refresh
+    if (csrf) {
+        fetch('{{ route("dashboard.chatbot.reset") }}', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrf,
+            },
+        }).catch(() => {});
+    }
 
     // Toggle Quick Actions Panel
     if (optionsBtn && panel) {
@@ -415,7 +466,7 @@
                             class="w-8 h-8 object-contain flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg">
                     </div>
                  <div class="rounded-2xl rounded-tl-md border border-neutral-800 bg-black px-4 py-3 shadow-lg">
-                    <div class="mb-2 text-xs font-semibold text-orange-500">Nara sedang mengetik...</div>
+                    <div class="mb-2 text-xs font-semibold text-orange-500">Nara sedang mengetik... ✍️😊</div>
                     <div class="flex items-center gap-2">
                         <span class="typing-dot h-2 w-2 rounded-full bg-orange-500"></span>
                         <span class="typing-dot h-2 w-2 rounded-full bg-orange-500"></span>
@@ -468,10 +519,10 @@
 
             const data = await response.json();
             removeTypingIndicator();
-            addBotMessage(data.reply || 'Terjadi kendala saat memproses permintaan.');
+            addBotMessage(data.reply || 'Terjadi kendala saat memproses permintaan. 😥');
         } catch (error) {
             removeTypingIndicator();
-            addBotMessage('Gagal menghubungi server chatbot. Coba lagi.');
+            addBotMessage('Gagal menghubungi server chatbot. Coba lagi ya. 🙏😊');
         } finally {
             sendBtn.disabled = false;
             sendBtn.classList.remove('opacity-50', 'cursor-not-allowed');

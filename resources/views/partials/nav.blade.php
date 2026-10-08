@@ -1,8 +1,33 @@
 <link rel="stylesheet" href="{{ asset('css/nav-style.css') }}">
 
 <nav id="siteNav" class="nav-base fixed inset-x-0 top-0 z-50 font-sans antialiased">
-    <div class="mx-auto w-full max-w-6x px-2 md:px-8">
-        <div class="flex items-center justify-between py-4">
+    <div class="topbar">
+        <div class="topbar-inner mx-auto flex w-full max-w-6x items-center justify-between px-2 md:px-8">
+            <div class="flex items-center gap-3 text-xs text-white">
+                <svg class="h-5 w-5 text-white mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span>{{ now()->translatedFormat('l | d M, Y') }}</span>
+            </div>
+            <div class="flex items-center gap-5 text-white">
+                <a href="https://facebook.com" target="_blank" rel="noopener" aria-label="Facebook"
+                    class="hover:text-white">
+                    <i class="fa-brands fa-facebook-f"></i>
+                </a>
+                <a href="https://youtube.com" target="_blank" rel="noopener" aria-label="YouTube"
+                    class="hover:text-white">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-main mx-auto w-full max-w-6x px-2 md:px-8">
+        <div class="flex items-center justify-between py-2">
             <a href="/" class="flex items-center ">
                 <img src="{{ asset('img/logo_TA.png') }}" alt="Logo Desa Wonorejo"
                     class="h-12 w-auto rounded-full object-cover">
@@ -24,7 +49,11 @@
             $isProfil = request()->routeIs('profil');
             $isBerita = request()->routeIs('berita*') || request()->routeIs('artikel*');
             $isLayanan = request()->routeIs('layanan*') || request()->routeIs('layanan');
-            $isKontak = request()->routeIs('contact');
+            $isKontak = request()->routeIs('kontak');
+            $role = auth()->user()->role ?? null;
+            $dashboardRoute = $role === 'petugas'
+            ? 'petugas.dashboard'
+            : ($role === 'admin' ? 'admin.dashboard' : 'dashboard');
             @endphp
 
             <!-- Desktop -->
@@ -40,8 +69,8 @@
                         </svg>
                     </button>
 
-                    <div
-                        class="dropdown-panel absolute left-0 mt-2 w-80 overflow-hidden bg-black p-5 text-white shadow-xl backdrop-blur">
+                    <div class="dropdown-panel absolute left-0 mt-2 w-80 overflow-hidden p-5 text-white shadow-xl backdrop-blur"
+                        style="background: #111827;">
                         <a class="block rounded-xl px-3 py-2 text-sm font-semibold text-white/50 hover:text-white/90 tracking-[2px]"
                             href="{{ route('profil') }}#sejarah">SEJARAH DESA</a>
                         <a class="block rounded-xl px-3 py-2 text-sm font-semibold text-white/50 hover:text-white/90 tracking-[2px]"
@@ -52,8 +81,7 @@
                             href="{{ route('profil') }}#statistik">STATISTIK</a>
                         <a class="block rounded-xl px-3 py-2 text-sm font-semibold text-white/50 hover:text-white/90 tracking-[2px]"
                             href="{{ route('profil') }}#potensi">POTENSI</a>
-                        <a class="block rounded-xl px-3 py-2 text-sm font-semibold text-white/50 hover:text-white/90 tracking-[2px]"
-                            href="{{ route('profil') }}#inovasi">INOVASI</a>
+
                     </div>
                 </div>
 
@@ -67,8 +95,8 @@
                         </svg>
                     </button>
 
-                    <div
-                        class="dropdown-panel absolute left-0 mt-2 w-56 overflow-hidden bg-black p-4 text-white shadow-xl backdrop-blur">
+                    <div class="dropdown-panel absolute left-0 mt-2 w-56 overflow-hidden p-4 text-white shadow-xl backdrop-blur"
+                        style="background: #111827;">
                         <a class="block rounded-xl px-3 py-2 text-sm font-semibold text-white/50 hover:text-white/90 tracking-[2px]"
                             href="{{ route('berita') }}">BERITA</a>
                         <a class="block rounded-xl px-3 py-2 text-sm font-semibold text-white/50 hover:text-white/90 tracking-[2px]"
@@ -78,7 +106,7 @@
                 <a class="nav-link text-xs font-semibold tracking-[2px] {{ $isLayanan ? 'is-active' : 'text-white/90' }}"
                     href="{{ route('layanan') }}">LAYANAN DIGITAL</a>
                 <a class="nav-link text-xs font-semibold tracking-[2px] {{ $isKontak ? 'is-active' : 'text-white/90' }}"
-                    href="{{ route('contact') }}">KONTAK</a>
+                    href="{{ route('kontak') }}">KONTAK</a>
                 <span class="mx-2 h-7 w-px bg-white/40"></span>
                 <!-- Search button -->
                 <button id="searchOpen"
@@ -91,41 +119,24 @@
                     </svg>
                 </button>
 
-                @if(auth()->check() && auth()->user()->approval_status === 'approved')
-                <div id="userAccountDropdown" class="relative dropdown">
-                    <button id="userAccountBtn" type="button"
-                        class="ml-1 inline-flex items-center justify-center text-white/90 transition"
-                        aria-haspopup="true" aria-expanded="false" title="Menu Pengguna">
-                        <i class="fa-solid fa-circle-user text-2xl"></i>
-                    </button>
-
-                    <div
-                        class="dropdown-panel absolute right-0 mt-2 w-56 overflow-hidden rounded-xl bg-black p-3 text-white shadow-xl backdrop-blur">
-                        <a class="block rounded-xl px-3 py-2 text-xs font-semibold text-white/50 hover:text-white/90 tracking-[1px]"
-                            href="{{ route('dashboard') }}">
-                            DASHBOARD
-                        </a>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit"
-                                class="mt-1 block rounded-xl px-3 py-2 text-xs font-semibold text-red-300 hover:text-red-400 tracking-[1px]">
-                                KELUAR
-                            </button>
-                        </form>
-                    </div>
-                </div>
+                @if(auth()->check() && in_array($role, ['admin', 'petugas'], true))
+                <a class="ml-1 rounded-md bg-orange-500 px-4 py-1.5 text-sm font-semibold text-white/90 hover:bg-orange-400 tracking-[1px]"
+                    href="{{ route($dashboardRoute) }}">DASHBOARD</a>
+                @elseif(auth()->check() && auth()->user()->approval_status === 'approved')
+                <a class="ml-1 rounded-md bg-orange-500 px-4 py-1.5 text-sm font-semibold text-white/90 hover:bg-orange-400 tracking-[1px]"
+                    href="{{ route($dashboardRoute) }}">DASHBOARD</a>
                 @elseif(auth()->check())
-                <a class="ml-1 rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white/90 hover:bg-orange-400 tracking-[1px]"
+                <a class="ml-1 rounded-md bg-orange-500 px-4 py-1.5 text-sm font-semibold text-white/90 hover:bg-orange-400 tracking-[1px]"
                     href="{{ route('account.pending') }}">STATUS AKUN</a>
                 @else
-                <a class="ml-1 rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-white/90 hover:bg-orange-400 tracking-[1px]"
-                    href="{{ route('register') }}">DAFTAR DIRI</a>
+                <a class="ml-1 rounded-md bg-orange-500 px-4 py-1.5 text-sm font-semibold text-white/90 hover:bg-orange-400 tracking-[1px]"
+                    href="{{ route('login') }}">LOGIN</a>
                 @endif
             </div>
 
             <!-- Mobile button -->
             <button id="mobileMenuBtn" type="button"
-                class="md:hidden rounded-xl border border-white/15 px-3 py-2 text-white/90 hover:bg-white/10"
+                class="md:hidden rounded-md border border-white/15 px-3 py-2 text-white/90 hover:bg-white/10"
                 aria-expanded="false" aria-controls="mobilePanel">
                 ☰
             </button>
@@ -133,7 +144,7 @@
 
         <!-- Mobile Panel -->
         <div id="mobilePanel" class="mobile-panel pb-4 md:hidden">
-            <div class="rounded-2xl border border-white/10 bg-black/75 p-3 text-white backdrop-blur">
+            <div class="rounded-lg border border-white/10 p-3 text-white backdrop-blur" style="background: #111827;">
                 <!-- Mobile Dropdown Fitur -->
                 <div class="mb-5">
                     <button id="mobileFiturBtn" type="button"
@@ -147,7 +158,7 @@
                     </button>
 
 
-                    <div id="mobileFiturPanel" class="hidden mt-1 space-y-1 rounded-xl bg-white/5 p-2">
+                    <div id="mobileFiturPanel" class="hidden mt-2 space-y-1 rounded-md bg-white/5 p-2">
                         <a class="block rounded-lg px-3 py-2 text-xs text-white/50 hover:text-white/90 tracking-[2px] font-semibold"
                             href="{{ route('profil') }}#sejarah">SEJARAH DESA</a>
                         <a class="block rounded-lg px-3 py-2 text-xs text-white/50 hover:text-white/90 tracking-[2px]  font-semibold"
@@ -159,8 +170,7 @@
                             href="{{ route('profil') }}#statistik">STATISTIK</a>
                         <a class="block rounded-lg px-3 py-2 text-xs text-white/50 hover:text-white/90 tracking-[2px]  font-semibold"
                             href="{{ route('profil') }}#potensi">POTENSI</a>
-                        <a class="block rounded-lg px-3 py-2 text-xs text-white/50 hover:text-white/90 tracking-[2px]  font-semibold"
-                            href="{{ route('profil') }}#inovasi">INOVASI</a>
+
                     </div>
                 </div>
 
@@ -176,7 +186,7 @@
                     </button>
 
 
-                    <div id="mobileBeritaPanel" class="hidden mt-1 space-y-1 rounded-xl bg-white/5 p-2">
+                    <div id="mobileBeritaPanel" class="hidden mt-2 space-y-1 rounded-md bg-white/5 p-2">
                         <a class=" block rounded-lg px-3 py-2 text-xs text-white/50 hover:text-white/90 tracking-[2px]  font-semibold"
                             href="{{ route('berita') }}">
                             BERITA
@@ -192,12 +202,12 @@
                     LAYANAN DIGITAL
                 </a>
                 <a class="flex items-center mb-5 leading-none text-xs font-semibold tracking-[2px] {{ $isKontak ? 'text-white' : 'text-white/50 hover:text-white/90' }}"
-                    href="{{ route('contact') }}">
+                    href="{{ route('kontak') }}">
                     KONTAK
                 </a>
 
                 <button id="mobileSearchOpen"
-                    class="text-white/50 hover:text-white/90 mobile-nav-item flex items-center mb-5 gap-2 text-xs font-semibold tracking-[2px] text-white/90"
+                    class="text-white/50 hover:text-white/90 mobile-nav-item flex items-center mb-5 gap-2 text-xs font-semibold tracking-[2px]"
                     aria-label="Search">
 
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -208,32 +218,40 @@
                     <span>CARI</span>
                 </button>
 
-                @if(auth()->check() && auth()->user()->approval_status === 'approved')
-                <div class="mt-2 rounded-xl border border-white/10 bg-white/5 p-2">
-                    <a class="mb-2 block rounded-lg px-3 py-2 text-xs font-semibold tracking-[1px] text-white/90 hover:text-white"
-                        href="{{ route('dashboard') }}">
-                        DASHBOARD
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit"
-                            class="block w-full rounded-lg px-3 py-2 text-left text-xs font-semibold tracking-[1px] text-red-300 hover:text-red-400">
-                            KELUAR
-                        </button>
-                    </form>
-                </div>
+                @if(auth()->check() && in_array($role, ['admin', 'petugas'], true))
+                <a class="mt-2 block rounded-md bg-orange-500  px-4 py-1.5 text-center text-sm font-semibold text-white/90 hover:bg-orange-400 tracking-[1px]"
+                    href="{{ route($dashboardRoute) }}">DASHBOARD</a>
+                @elseif(auth()->check() && auth()->user()->approval_status === 'approved')
+                <a class="mt-2 block rounded-md bg-orange-500  px-4 py-1.5 text-center text-sm font-semibold text-white/90 hover:bg-orange-400 tracking-[1px]"
+                    href="{{ route($dashboardRoute) }}">DASHBOARD</a>
                 @elseif(auth()->check())
-                <a class="mt-2 block rounded-xl bg-orange-500 p-2 text-center text-sm font-semibold text-white/90 hover:bg-orange-400 tracking-[1px]"
+                <a class="mt-2 block rounded-md bg-orange-500  px-4 py-1.5 text-center text-sm font-semibold text-white/90 hover:bg-orange-400 tracking-[1px]"
                     href="{{ route('account.pending') }}">STATUS AKUN</a>
                 @else
-                <a class="mt-2 block rounded-xl bg-orange-500 p-2 text-center text-sm font-semibold text-white/90 hover:bg-orange-400 tracking-[1px]"
-                    href="{{ route('register') }}">DAFTAR DIRI</a>
+                <a class="mt-2 block rounded-md bg-orange-500  px-4 py-1.5 text-center text-sm font-semibold text-white/90 hover:bg-orange-400 tracking-[1px]"
+                    href="{{ route('login') }}">LOGIN</a>
                 @endif
             </div>
         </div>
     </div>
 </nav>
 <!-- Search Popup -->
+@php
+$quickLinks = [
+['label' => 'Beranda', 'href' => url('/'), 'keywords' => 'home landing halaman utama'],
+['label' => 'Profil Desa', 'href' => route('profil'), 'keywords' => 'profil desa tentang wonorejo'],
+['label' => 'Sejarah Desa', 'href' => route('profil') . '#sejarah', 'keywords' => 'sejarah desa profil riwayat'],
+['label' => 'Visi Misi', 'href' => route('profil') . '#visimisi', 'keywords' => 'visi misi tujuan profil'],
+['label' => 'Struktur Organisasi', 'href' => route('profil') . '#struktur', 'keywords' => 'struktur organisasi sotk
+perangkat'],
+['label' => 'Statistik Desa', 'href' => route('profil') . '#statistik', 'keywords' => 'statistik demografi penduduk
+wilayah'],
+['label' => 'Layanan Digital', 'href' => route('layanan'), 'keywords' => 'layanan surat pengajuan digital'],
+['label' => 'Kontak', 'href' => route('kontak'), 'keywords' => 'kontak alamat telepon hubungi'],
+['label' => 'Berita', 'href' => route('berita'), 'keywords' => 'berita informasi kabar'],
+['label' => 'Artikel', 'href' => route('artikel'), 'keywords' => 'artikel tulisan informasi'],
+];
+@endphp
 <div id="searchPopup" class="fixed top-20 right-6 z-[100] hidden w-[420px] max-w-[90vw]
            rounded-md bg-white shadow-2xl">
 
@@ -244,15 +262,30 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.3-4.3"></path>
         </svg>
 
-        <input type="text" placeholder="Cari..." class="w-full border border-gray-500 bg-transparent text-sm text-gray-800
-                placeholder-gray-400 tracking-[.5px]
-                focus:outline-none focus:border-1 focus:border-orange-500 focus:ring-0 rounded-md" autofocus />
+        <input id="searchInput" type="text" placeholder="Cari halaman, menu, atau bagian situs..."
+            class="w-full rounded-md border border-gray-500 bg-transparent text-sm text-gray-800 placeholder-gray-400 tracking-[.5px] focus:border-orange-500 focus:outline-none focus:ring-0"
+            autofocus />
 
 
         <!-- close -->
         <button id="searchClose" class="text-gray-400 hover:text-gray-700" aria-label="Close search">
             ✕
         </button>
+    </div>
+
+    <div class="px-4 py-3">
+        <p id="searchHint" class="mb-2 text-xs font-semibold uppercase tracking-[1px] text-slate-500">Navigasi cepat</p>
+        <div id="searchResults" class="max-h-72 space-y-1 overflow-y-auto">
+            @foreach($quickLinks as $quickLink)
+            <a href="{{ $quickLink['href'] }}" data-search-item data-keywords="{{ $quickLink['keywords'] }}"
+                class="block rounded-md px-3 py-2 text-sm text-slate-700 transition hover:bg-orange-50 hover:text-orange-600">
+                {{ $quickLink['label'] }}
+            </a>
+            @endforeach
+        </div>
+        <p id="searchEmpty" class="hidden rounded-md bg-slate-50 px-3 py-3 text-sm text-slate-500">
+            Tidak ada hasil yang cocok.
+        </p>
     </div>
 </div>
 
@@ -336,15 +369,46 @@
     const searchOpen = document.getElementById('searchOpen');
     const searchPopup = document.getElementById('searchPopup');
     const searchClose = document.getElementById('searchClose');
+    const searchInput = document.getElementById('searchInput');
+    const searchItems = Array.from(document.querySelectorAll('[data-search-item]'));
+    const searchEmpty = document.getElementById('searchEmpty');
+    const searchHint = document.getElementById('searchHint');
 
     if (!searchOpen || !searchPopup) return;
 
+    function filterSearchResults() {
+        const keyword = (searchInput?.value || '').trim().toLowerCase();
+        let visibleCount = 0;
+
+        searchItems.forEach((item) => {
+            const haystack = `${item.textContent} ${item.dataset.keywords || ''}`.toLowerCase();
+            const matched = keyword === '' || haystack.includes(keyword);
+            item.classList.toggle('hidden', !matched);
+
+            if (matched) {
+                visibleCount += 1;
+            }
+        });
+
+        searchEmpty?.classList.toggle('hidden', visibleCount !== 0);
+
+        if (searchHint) {
+            searchHint.textContent = keyword === '' ? 'Navigasi cepat' : `Hasil untuk "${keyword}"`;
+        }
+    }
+
     function openSearch() {
         searchPopup.classList.remove('hidden');
+        filterSearchResults();
+        setTimeout(() => searchInput?.focus(), 0);
     }
 
     function closeSearch() {
         searchPopup.classList.add('hidden');
+        if (searchInput) {
+            searchInput.value = '';
+        }
+        filterSearchResults();
     }
 
     // buka popup
@@ -372,6 +436,24 @@
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeSearch();
     });
+
+    searchInput?.addEventListener('input', filterSearchResults);
+    searchInput?.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter') return;
+
+        const firstVisible = searchItems.find((item) => !item.classList.contains('hidden'));
+        if (!firstVisible) return;
+
+        window.location.href = firstVisible.href;
+    });
+
+    searchItems.forEach((item) => {
+        item.addEventListener('click', () => {
+            closeSearch();
+        });
+    });
+
+    filterSearchResults();
 })();
 </script>
 
@@ -460,5 +542,3 @@
 
 })();
 </script>
-
-

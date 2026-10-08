@@ -10,7 +10,7 @@ class PerangkatDesaController extends Controller
 {
     public function index()
     {
-        $perangkat = PerangkatDesa::orderBy('urutan', 'asc')->get();
+        $perangkat = PerangkatDesa::orderBy('urutan', 'asc')->paginate(10);
         return view('admin.perangkat_desa.index', compact('perangkat'));
     }
 
@@ -74,6 +74,22 @@ class PerangkatDesaController extends Controller
         $perangkat->delete();
 
         return redirect()->route('admin.perangkat.index')->with('success', 'Data berhasil dihapus');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $data = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['required', 'integer', 'distinct', 'exists:perangkat_desas,id'],
+        ]);
+
+        $perangkat = PerangkatDesa::whereKey($data['ids'])->get();
+        foreach ($perangkat as $item) {
+            $item->delete();
+        }
+
+        return redirect()->route('admin.perangkat.index')
+            ->with('success', $perangkat->count() . ' data perangkat desa berhasil dihapus.');
     }
 
     public function indexPublic()

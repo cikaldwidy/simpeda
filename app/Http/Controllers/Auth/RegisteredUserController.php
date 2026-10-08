@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Http\Client\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
@@ -38,12 +40,13 @@ class RegisteredUserController extends Controller
             'no_hp' => ['required', 'string', 'max:20'],
             'tempat_lahir' => ['required', 'string', 'max:100'],
             'tanggal_lahir' => ['required', 'date', 'before_or_equal:today'],
+            'g-recaptcha-response' => ['required'],
 
-            // wilayah (dropdown)
-            'provinsi_id'  => ['required', 'string', 'max:10'],
-            'kabupaten_id' => ['required', 'string', 'max:10'],
-            'kecamatan_id' => ['required', 'string', 'max:15'],
-            'desa_id'      => ['required', 'string', 'max:20'],
+            // wilayah (tetap)
+            'provinsi_id'  => ['nullable', 'string', 'max:100'],
+            'kabupaten_id' => ['nullable', 'string', 'max:100'],
+            'kecamatan_id' => ['nullable', 'string', 'max:100'],
+            'desa_id'      => ['nullable', 'string', 'max:100'],
             'rt/rw' => ['nullable', 'string', 'max:7'],
             'dusun' => ['nullable', 'string', 'max:100'],
             'kode_pos' => ['nullable', 'string', 'max:10'],
@@ -53,7 +56,26 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        /** @var Response $recaptcha */
+        $recaptcha = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret' => config('services.recaptcha.secret'),
+            'response' => $request->input('g-recaptcha-response'),
+            'remoteip' => $request->ip(),
+        ]);
+
+        if (! $recaptcha->ok() || ! ($recaptcha->json('success') ?? false)) {
+            return back()->withErrors(['g-recaptcha-response' => 'Verifikasi reCAPTCHA gagal.'])->withInput();
+        }
+
         $tanggalLahir = Carbon::parse($request->tanggal_lahir);
+
+        $fixedWilayah = [
+            'provinsi' => 'Jawa Timur',
+            'kabupaten' => 'Kabupaten Tulungagung',
+            'kecamatan' => 'Sumbergempol',
+            'desa' => 'Wonorejo',
+            'kode_pos' => '66291',
+        ];
 
         $user = User::create([
             'name' => $request->name,
@@ -67,13 +89,13 @@ class RegisteredUserController extends Controller
             'tahun_lahir' => (int) $tanggalLahir->format('Y'),
 
             // wilayah
-            'provinsi_id' => $request->provinsi_id,
-            'kabupaten_id' => $request->kabupaten_id,
-            'kecamatan_id' => $request->kecamatan_id,
-            'desa_id' => $request->desa_id,
+            'provinsi_id' => $fixedWilayah['provinsi'],
+            'kabupaten_id' => $fixedWilayah['kabupaten'],
+            'kecamatan_id' => $fixedWilayah['kecamatan'],
+            'desa_id' => $fixedWilayah['desa'],
             'rt/rw' => $request->input('rt/rw'),
             'dusun' => $request->dusun,
-            'kode_pos' => $request->kode_pos,
+            'kode_pos' => $fixedWilayah['kode_pos'],
             // detail alamat
             'alamat_detail' => $request->alamat_detail,
 

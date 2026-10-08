@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LogChatbot;
 use Google\Cloud\Dialogflow\V2\DetectIntentRequest;
 use Google\Cloud\Dialogflow\V2\QueryInput;
+use Google\Cloud\Dialogflow\V2\QueryParameters;
 use Google\Cloud\Dialogflow\V2\Client\SessionsClient;
 use Google\Cloud\Dialogflow\V2\TextInput;
 use Illuminate\Http\JsonResponse;
@@ -19,6 +21,8 @@ class PublicChatbotController extends Controller
             'message' => 'required|string',
         ]);
 
+        $message = trim((string) $request->input('message'));
+
         if (! class_exists(SessionsClient::class)) {
             $autoload = base_path('vendor/autoload.php');
             if (is_file($autoload)) {
@@ -27,9 +31,12 @@ class PublicChatbotController extends Controller
         }
 
         if (! class_exists(SessionsClient::class)) {
+            $reply = $this->fallbackReply();
+            $this->logConversation($request, $message, $reply);
+
             return response()->json([
-                'reply' => 'Maaf, layanan chatbot belum siap. Coba lagi sebentar ya 🙏',
-            ], 503);
+                'reply' => $reply,
+            ]);
         }
 
         $projectId = config('services.dialogflow.project_id');
@@ -37,13 +44,15 @@ class PublicChatbotController extends Controller
         $credentialsPath = config('services.dialogflow.credentials');
 
         if (! $projectId) {
+            $reply = $this->fallbackReply();
+            $this->logConversation($request, $message, $reply);
+
             return response()->json([
-                'reply' => 'Maaf, chatbot belum dikonfigurasi.',
-            ], 503);
+                'reply' => $reply,
+            ]);
         }
 
-        $message = trim((string) $request->input('message'));
-        $sessionId = $request->session()->getId() ?: (string) Str::uuid();
+        $sessionId = $this->getDialogflowSessionId($request);
 
         try {
             $clientOptions = [];
@@ -58,9 +67,12 @@ class PublicChatbotController extends Controller
                 if (is_file($resolvedPath)) {
                     $clientOptions['credentials'] = $resolvedPath;
                 } else {
+                    $reply = $this->fallbackReply();
+                    $this->logConversation($request, $message, $reply);
+
                     return response()->json([
-                        'reply' => 'Maaf, file kredensial chatbot tidak ditemukan.',
-                    ], 503);
+                        'reply' => $reply,
+                    ]);
                 }
             }
 
@@ -72,9 +84,11 @@ class PublicChatbotController extends Controller
                 ->setLanguageCode($languageCode);
 
             $queryInput = (new QueryInput())->setText($textInput);
+            $queryParams = new QueryParameters();
             $detectRequest = (new DetectIntentRequest())
                 ->setSession($session)
-                ->setQueryInput($queryInput);
+                ->setQueryInput($queryInput)
+                ->setQueryParams($queryParams);
 
             $response = $sessionsClient->detectIntent($detectRequest);
 
@@ -84,8 +98,10 @@ class PublicChatbotController extends Controller
             $sessionsClient->close();
 
             if ($reply === '') {
-                $reply = 'Maaf, aku belum paham. Coba tanya dengan kalimat lain ya 🙏';
+                $reply = $this->fallbackReply();
             }
+
+            $this->logConversation($request, $message, $reply);
 
             return response()->json([
                 'reply' => $reply,
@@ -93,9 +109,66 @@ class PublicChatbotController extends Controller
         } catch (\Throwable $e) {
             Log::error('Dialogflow error', ['error' => $e->getMessage()]);
 
+            $reply = $this->fallbackReply();
+            $this->logConversation($request, $message, $reply);
+
             return response()->json([
-                'reply' => 'Maaf, chatbot sedang mengalami kendala. Coba lagi sebentar ya 🙏',
-            ], 500);
+                'reply' => $reply,
+            ]);
         }
+    }
+
+    private function fallbackReply(): string
+    {
+        return implode("\n", [
+            'Maaf ya, chatbot lagi sibuk sedikit :) Coba ini dulu:',
+            '1) Cek status surat: "cek status surat"',
+            '2) Buat surat otomatis: "buat surat domisili"',
+            'Kalau masih bingung, coba tulis dengan kata lain ya :)',
+        ]);
+    }
+
+    private function getDialogflowSessionId(Request $request): string
+    {
+        $key = 'dialogflow_session_id';
+        $existing = $request->session()->get($key);
+        if (is_string($existing) && $existing !== '') {
+            return $existing;
+        }
+
+        $newId = (string) Str::uuid();
+        $request->session()->put($key, $newId);
+        return $newId;
+    }
+
+    private function logConversation(Request $request, string $message, string $reply): void
+    {
+        $message = trim($message);
+        if ($message === '') {
+            return;
+        }
+
+        LogChatbot::create([
+            'sesi_id' => $this->getChatbotSessionId($request),
+            'pertanyaan_user' => $message,
+            'jawaban_bot' => $reply,
+            'waktu_interaksi' => now(),
+            'id_permohonan' => null,
+        ]);
+    }
+
+    private function getChatbotSessionId(Request $request): string
+    {
+        $key = 'chatbot_log_session_id';
+        $existing = $request->session()->get($key);
+
+        if (is_string($existing) && $existing !== '') {
+            return $existing;
+        }
+
+        $newId = (string) Str::uuid();
+        $request->session()->put($key, $newId);
+
+        return $newId;
     }
 }

@@ -56,16 +56,73 @@ class PengajuanSuratController extends Controller
                 'nama_meninggal' => ['required', 'string', 'max:255'],
                 'jenis_kelamin_meninggal' => ['required', 'in:laki-laki,perempuan'],
                 'usia_meninggal' => ['required', 'integer', 'min:0', 'max:130'],
+                'tempat_lahir_meninggal' => ['required', 'string', 'max:255'],
+                'tanggal_lahir_meninggal' => ['required', 'date'],
+                'nama_ortu_meninggal' => ['required', 'string', 'max:255'],
                 'tanggal_meninggal' => ['required', 'date'],
                 'lokasi_meninggal' => ['required', 'string', 'max:255'],
                 'sebab_meninggal' => ['required', 'string', 'max:255'],
-
-                'provinsi_meninggal' => ['required', 'string', 'max:120'],
-                'kabupaten_meninggal' => ['required', 'string', 'max:120'],
-                'kecamatan_meninggal' => ['required', 'string', 'max:120'],
-                'desa_meninggal' => ['required', 'string', 'max:120'],
-                'rt_rw_meninggal' => ['nullable', 'string', 'max:20'],
-                'dusun_meninggal' => ['nullable', 'string', 'max:120'],
+            ]);
+        } elseif ($jenis === SuratPengajuan::JENIS_KELAHIRAN) {
+            $request->validate($baseRules + [
+                'nama_bayi' => ['required', 'string', 'max:255'],
+                'jenis_kelamin_bayi' => ['required', 'in:laki-laki,perempuan'],
+                'tempat_lahir_bayi' => ['required', 'string', 'max:255'],
+                'tanggal_lahir_bayi' => ['required', 'date'],
+                'anak_ke' => ['required', 'integer', 'min:1', 'max:20'],
+                'nama_ayah' => ['required', 'string', 'max:255'],
+                'agama_ayah' => ['required', 'string', 'max:80'],
+                'tempat_lahir_ayah' => ['required', 'string', 'max:255'],
+                'tanggal_lahir_ayah' => ['required', 'date'],
+                'nama_ibu' => ['required', 'string', 'max:255'],
+                'agama_ibu' => ['required', 'string', 'max:80'],
+                'tempat_lahir_ibu' => ['required', 'string', 'max:255'],
+                'tanggal_lahir_ibu' => ['required', 'date'],
+            ]);
+        } elseif ($jenis === SuratPengajuan::JENIS_USAHA) {
+            $request->validate($baseRules + [
+                'pekerjaan' => ['required', 'string', 'max:100'],
+                'status_perkawinan' => ['required', 'in:belum_kawin,kawin,cerai_hidup,cerai_mati'],
+                'nama_usaha' => ['required', 'string', 'max:255'],
+            ]);
+        } elseif ($jenis === SuratPengajuan::JENIS_BELUM_MENIKAH) {
+            $request->merge([
+                'status_perkawinan' => 'belum_kawin',
+            ]);
+            $request->validate($baseRules + [
+                'pekerjaan' => ['required', 'string', 'max:100'],
+                'status_perkawinan' => ['required', 'in:belum_kawin'],
+            ]);
+        } elseif ($jenis === SuratPengajuan::JENIS_KEHILANGAN) {
+            $request->validate($baseRules + [
+                'jenis_dokumen' => ['required', 'in:kk,ktp,akta_kelahiran,lainnya'],
+                'jenis_dokumen_lainnya' => ['nullable', 'required_if:jenis_dokumen,lainnya', 'string', 'max:255'],
+                'nama_dokumen' => ['required', 'string', 'max:255'],
+                'status_perkawinan' => ['required', 'in:belum_kawin,kawin,cerai_hidup,cerai_mati'],
+                'pekerjaan' => ['required', 'string', 'max:100'],
+                'tanggal_kehilangan' => ['required', 'date'],
+                'lokasi_kehilangan' => ['required', 'in:rumah,jalan'],
+                'lokasi_rumah_detail' => ['nullable', 'string', 'max:255'],
+                'lokasi_jalan_detail' => ['nullable', 'string', 'max:255'],
+            ]);
+        } elseif ($jenis === SuratPengajuan::JENIS_PENGHASILAN_ORTU) {
+            $penghasilanOptions = [500000, 1000000, 1500000, 2000000, 2500000, 3000000, 3500000, 4000000, 4500000, 5000000];
+            $request->validate($baseRules + [
+                'nama_ayah' => ['required', 'string', 'max:255'],
+                'tempat_lahir_ayah' => ['required', 'string', 'max:255'],
+                'tanggal_lahir_ayah' => ['required', 'date'],
+                'nik_ayah' => ['required', 'digits:16'],
+                'pekerjaan_ayah' => ['required', 'string', 'max:100'],
+                'penghasilan_ayah' => ['required', Rule::in([...$penghasilanOptions, 'lainnya'])],
+                'penghasilan_ayah_lainnya' => ['nullable', 'required_if:penghasilan_ayah,lainnya', 'string', 'max:50'],
+                'nama_ibu' => ['required', 'string', 'max:255'],
+                'tempat_lahir_ibu' => ['required', 'string', 'max:255'],
+                'tanggal_lahir_ibu' => ['required', 'date'],
+                'nik_ibu' => ['required', 'digits:16'],
+                'pekerjaan_ibu' => ['required', 'string', 'max:100'],
+                'penghasilan_ibu' => ['required', Rule::in([...$penghasilanOptions, 'lainnya'])],
+                'penghasilan_ibu_lainnya' => ['nullable', 'required_if:penghasilan_ibu,lainnya', 'string', 'max:50'],
+                'universitas_anak' => ['required', 'string', 'max:255'],
             ]);
         } else {
             $request->validate($baseRules + [
@@ -77,36 +134,30 @@ class PengajuanSuratController extends Controller
         $surat = DB::transaction(function () use ($request, $jenis): SuratPengajuan {
             $tahun = (int) now()->format('Y');
 
-            $lastNomor = SuratPengajuan::query()
-                ->where('tahun', $tahun)
-                ->lockForUpdate()
-                ->max('nomor_urut');
-
-            $nomorUrut = ((int) $lastNomor) + 1;
-            $kodeJenis = SuratPengajuan::kodeJenis($jenis);
-            $nomorSurat = sprintf(
-                '%03d/%s/DSW/%s/%d',
-                $nomorUrut,
-                $kodeJenis,
-                now()->format('m'),
-                $tahun
-            );
-
             $perihal = match ($jenis) {
                 SuratPengajuan::JENIS_DOMISILI => 'Keterangan Domisili',
                 SuratPengajuan::JENIS_TIDAK_MAMPU => 'Keterangan Tidak Mampu',
                 SuratPengajuan::JENIS_KEMATIAN => 'Keterangan Kematian',
+                SuratPengajuan::JENIS_KELAHIRAN => 'Keterangan Kelahiran',
+                SuratPengajuan::JENIS_USAHA => 'Keterangan Usaha',
+                SuratPengajuan::JENIS_BELUM_MENIKAH => 'Keterangan Belum Menikah',
+                SuratPengajuan::JENIS_KEHILANGAN => 'Keterangan Kehilangan',
+                SuratPengajuan::JENIS_PENGHASILAN_ORTU => 'Keterangan Penghasilan Orang Tua',
                 default => $request->string('perihal')->toString(),
             };
-            $keperluan = $jenis === SuratPengajuan::JENIS_DOMISILI
-                ? 'Menerangkan status domisili warga Desa Wonorejo'
-                : ($jenis === SuratPengajuan::JENIS_TIDAK_MAMPU
-                    ? ($request->string('keperluan')->toString() === 'lainnya'
-                        ? $request->string('keperluan_lainnya')->toString()
-                        : $request->string('keperluan')->toString())
-                    : ($jenis === SuratPengajuan::JENIS_KEMATIAN
-                        ? 'Surat Keterangan Kematian dibuat atas dasar yang sebenarnya.'
-                        : $request->string('keperluan')->toString()));
+            $keperluan = match ($jenis) {
+                SuratPengajuan::JENIS_DOMISILI => 'Menerangkan status domisili warga Desa Wonorejo',
+                SuratPengajuan::JENIS_TIDAK_MAMPU => ($request->string('keperluan')->toString() === 'lainnya'
+                    ? $request->string('keperluan_lainnya')->toString()
+                    : $request->string('keperluan')->toString()),
+                SuratPengajuan::JENIS_KEMATIAN => 'Surat Keterangan Kematian dibuat atas dasar yang sebenarnya.',
+                SuratPengajuan::JENIS_KELAHIRAN => 'Keterangan ini dibuat agar diperlukan sebagaimana mestinya.',
+                SuratPengajuan::JENIS_USAHA => 'Demikian Surat Keterangan ini dibuat untuk dapat dipergunakan sebagaimana mestinya.',
+                SuratPengajuan::JENIS_BELUM_MENIKAH => 'Demikian Surat Keterangan ini dibuat untuk dapat dipergunakan sebagaimana mestinya.',
+                SuratPengajuan::JENIS_KEHILANGAN => 'Demikian Surat Keterangan ini dibuat untuk dapat dipergunakan sebagaimana mestinya.',
+                SuratPengajuan::JENIS_PENGHASILAN_ORTU => 'Demikian surat keterangan ini kami buat dengan sebenarnya untuk dapat dipergunakan sebagaimana mestinya.',
+                default => $request->string('keperluan')->toString(),
+            };
             $catatan = match ($jenis) {
                 SuratPengajuan::JENIS_DOMISILI => null,
                 SuratPengajuan::JENIS_TIDAK_MAMPU => ($request->string('digunakan_di')->toString() ?: null),
@@ -114,30 +165,72 @@ class PengajuanSuratController extends Controller
                     'nama_meninggal' => $request->string('nama_meninggal')->toString(),
                     'jenis_kelamin_meninggal' => $request->string('jenis_kelamin_meninggal')->toString(),
                     'usia_meninggal' => $request->integer('usia_meninggal'),
+                    'tempat_lahir_meninggal' => $request->string('tempat_lahir_meninggal')->toString(),
+                    'tanggal_lahir_meninggal' => $request->string('tanggal_lahir_meninggal')->toString(),
+                    'nama_ortu_meninggal' => $request->string('nama_ortu_meninggal')->toString(),
                     'tanggal_meninggal' => $request->string('tanggal_meninggal')->toString(),
                     'lokasi_meninggal' => $request->string('lokasi_meninggal')->toString(),
                     'sebab_meninggal' => $request->string('sebab_meninggal')->toString(),
-                    'provinsi_meninggal' => $request->string('provinsi_meninggal')->toString(),
-                    'kabupaten_meninggal' => $request->string('kabupaten_meninggal')->toString(),
-                    'kecamatan_meninggal' => $request->string('kecamatan_meninggal')->toString(),
-                    'desa_meninggal' => $request->string('desa_meninggal')->toString(),
-                    'rt_rw_meninggal' => $request->string('rt_rw_meninggal')->toString(),
-                    'dusun_meninggal' => $request->string('dusun_meninggal')->toString(),
+                ], JSON_UNESCAPED_UNICODE),
+                SuratPengajuan::JENIS_KELAHIRAN => json_encode([
+                    'nama_bayi' => $request->string('nama_bayi')->toString(),
+                    'jenis_kelamin_bayi' => $request->string('jenis_kelamin_bayi')->toString(),
+                    'tempat_lahir_bayi' => $request->string('tempat_lahir_bayi')->toString(),
+                    'tanggal_lahir_bayi' => $request->string('tanggal_lahir_bayi')->toString(),
+                    'anak_ke' => $request->integer('anak_ke'),
+                    'nama_ayah' => $request->string('nama_ayah')->toString(),
+                    'agama_ayah' => $request->string('agama_ayah')->toString(),
+                    'tempat_lahir_ayah' => $request->string('tempat_lahir_ayah')->toString(),
+                    'tanggal_lahir_ayah' => $request->string('tanggal_lahir_ayah')->toString(),
+                    'nama_ibu' => $request->string('nama_ibu')->toString(),
+                    'agama_ibu' => $request->string('agama_ibu')->toString(),
+                    'tempat_lahir_ibu' => $request->string('tempat_lahir_ibu')->toString(),
+                    'tanggal_lahir_ibu' => $request->string('tanggal_lahir_ibu')->toString(),
+                ], JSON_UNESCAPED_UNICODE),
+                SuratPengajuan::JENIS_USAHA => json_encode([
+                    'nama_usaha' => $request->string('nama_usaha')->toString(),
+                ], JSON_UNESCAPED_UNICODE),
+                SuratPengajuan::JENIS_BELUM_MENIKAH => null,
+                SuratPengajuan::JENIS_KEHILANGAN => json_encode([
+                    'jenis_dokumen' => $request->string('jenis_dokumen')->toString(),
+                    'jenis_dokumen_lainnya' => $request->string('jenis_dokumen_lainnya')->toString(),
+                    'nama_dokumen' => $request->string('nama_dokumen')->toString(),
+                    'tanggal_kehilangan' => $request->string('tanggal_kehilangan')->toString(),
+                    'lokasi_kehilangan' => $request->string('lokasi_kehilangan')->toString(),
+                    'lokasi_rumah_detail' => $request->string('lokasi_rumah_detail')->toString(),
+                    'lokasi_jalan_detail' => $request->string('lokasi_jalan_detail')->toString(),
+                ], JSON_UNESCAPED_UNICODE),
+                SuratPengajuan::JENIS_PENGHASILAN_ORTU => json_encode([
+                    'nama_ayah' => $request->string('nama_ayah')->toString(),
+                    'tempat_lahir_ayah' => $request->string('tempat_lahir_ayah')->toString(),
+                    'tanggal_lahir_ayah' => $request->string('tanggal_lahir_ayah')->toString(),
+                    'nik_ayah' => $request->string('nik_ayah')->toString(),
+                    'pekerjaan_ayah' => $request->string('pekerjaan_ayah')->toString(),
+                    'penghasilan_ayah' => $request->string('penghasilan_ayah')->toString(),
+                    'penghasilan_ayah_lainnya' => $request->string('penghasilan_ayah_lainnya')->toString(),
+                    'nama_ibu' => $request->string('nama_ibu')->toString(),
+                    'tempat_lahir_ibu' => $request->string('tempat_lahir_ibu')->toString(),
+                    'tanggal_lahir_ibu' => $request->string('tanggal_lahir_ibu')->toString(),
+                    'nik_ibu' => $request->string('nik_ibu')->toString(),
+                    'pekerjaan_ibu' => $request->string('pekerjaan_ibu')->toString(),
+                    'penghasilan_ibu' => $request->string('penghasilan_ibu')->toString(),
+                    'penghasilan_ibu_lainnya' => $request->string('penghasilan_ibu_lainnya')->toString(),
+                    'universitas_anak' => $request->string('universitas_anak')->toString(),
                 ], JSON_UNESCAPED_UNICODE),
                 default => ($request->string('catatan')->toString() ?: null),
             };
-            $statusPerkawinan = $jenis === SuratPengajuan::JENIS_TIDAK_MAMPU
+            $statusPerkawinan = in_array($jenis, [SuratPengajuan::JENIS_TIDAK_MAMPU, SuratPengajuan::JENIS_USAHA, SuratPengajuan::JENIS_BELUM_MENIKAH, SuratPengajuan::JENIS_KEHILANGAN], true)
                 ? $request->string('status_perkawinan')->toString()
                 : null;
-            $pekerjaan = $jenis === SuratPengajuan::JENIS_TIDAK_MAMPU
+            $pekerjaan = in_array($jenis, [SuratPengajuan::JENIS_TIDAK_MAMPU, SuratPengajuan::JENIS_USAHA, SuratPengajuan::JENIS_BELUM_MENIKAH, SuratPengajuan::JENIS_KEHILANGAN], true)
                 ? $request->string('pekerjaan')->toString()
                 : null;
 
             return SuratPengajuan::create([
                 'user_id' => $request->user()->id,
                 'jenis_surat' => $jenis,
-                'nomor_surat' => $nomorSurat,
-                'nomor_urut' => $nomorUrut,
+                'nomor_surat' => null,
+                'nomor_urut' => null,
                 'tahun' => $tahun,
                 'perihal' => $perihal,
                 'keperluan' => $keperluan,
@@ -183,7 +276,7 @@ class PengajuanSuratController extends Controller
 
     public function download(Request $request, SuratPengajuan $suratPengajuan)
     {
-        $this->authorizePdfAccess($request, $suratPengajuan);
+        $this->authorizePdfDownloadAccess($request, $suratPengajuan);
 
         [$pdf, $fileName] = $this->buildPdfDocument($request, $suratPengajuan);
 
@@ -192,7 +285,7 @@ class PengajuanSuratController extends Controller
 
     public function preview(Request $request, SuratPengajuan $suratPengajuan)
     {
-        $this->authorizePdfAccess($request, $suratPengajuan);
+        $this->authorizePdfPreviewAccess($request, $suratPengajuan);
 
         [$pdf, $fileName] = $this->buildPdfDocument($request, $suratPengajuan);
         $pdfBinary = $pdf->output();
@@ -205,8 +298,23 @@ class PengajuanSuratController extends Controller
         ]);
     }
 
-    private function authorizePdfAccess(Request $request, SuratPengajuan $suratPengajuan): void
+    private function authorizePdfDownloadAccess(Request $request, SuratPengajuan $suratPengajuan): void
     {
+        $isAdmin = in_array($request->user()->role, ['admin', 'petugas'], true);
+        if (! $isAdmin) {
+            abort_unless($suratPengajuan->user_id === $request->user()->id, 403);
+        }
+        abort_unless($suratPengajuan->status === 'disetujui', 403);
+    }
+
+    private function authorizePdfPreviewAccess(Request $request, SuratPengajuan $suratPengajuan): void
+    {
+        $isAdmin = in_array($request->user()->role, ['admin', 'petugas'], true);
+        if ($isAdmin) {
+            abort_unless(in_array($suratPengajuan->status, ['menunggu', 'diajukan', 'disetujui'], true), 403);
+            return;
+        }
+
         abort_unless($suratPengajuan->user_id === $request->user()->id, 403);
         abort_unless($suratPengajuan->status === 'disetujui', 403);
     }
@@ -214,18 +322,22 @@ class PengajuanSuratController extends Controller
     private function buildPdfDocument(Request $request, SuratPengajuan $suratPengajuan): array
     {
         $jenisLabel = SuratPengajuan::jenisOptions()[$suratPengajuan->jenis_surat] ?? 'Surat Keterangan';
+        $suratPengajuan->loadMissing('user');
+        $suratUser = $suratPengajuan->user;
 
         $payload = [
             'surat' => $suratPengajuan,
-            'user' => $request->user(),
+            'user' => $suratUser,
             'jenisLabel' => $jenisLabel,
-            'alamatRingkas' => $this->alamatRingkas($request->user()),
-            'ttlFormatted' => $this->ttlFormatted($request->user()),
-            'domisiliAlamat' => $this->domisiliAlamat($request->user()),
-            'alamatDomisiliLines' => $this->alamatDomisiliLines($request->user()),
+            'alamatRingkas' => $this->alamatRingkas($suratUser),
+            'ttlFormatted' => $this->ttlFormatted($suratUser),
+            'domisiliAlamat' => $this->domisiliAlamat($suratUser),
+            'alamatDomisiliLines' => $this->alamatDomisiliLines($suratUser),
+            'provinsiNama' => $this->cleanRegionName($this->resolveProvinceName($suratUser->provinsi_id) ?? $suratUser->provinsi_id),
         ];
 
-        $fileName = 'surat-' . $suratPengajuan->jenis_surat . '-' . str_replace('/', '-', $suratPengajuan->nomor_surat) . '.pdf';
+        $nomorSurat = $suratPengajuan->nomor_surat ?: 'pengajuan-' . $suratPengajuan->id;
+        $fileName = 'surat-' . $suratPengajuan->jenis_surat . '-' . str_replace('/', '-', $nomorSurat) . '.pdf';
 
         $pdf = Pdf::loadView('layanan.surat.download', $payload)
             ->setPaper('a4', 'portrait');
@@ -270,13 +382,11 @@ class PengajuanSuratController extends Controller
         $kabupaten = ($kabupatenNama ?? $user->kabupaten_id)
             ? 'Kabupaten ' . ($kabupatenNama ?? $user->kabupaten_id)
             : null;
-        $provinsi = $provinsiNama ? 'Provinsi ' . $provinsiNama : null;
 
         return array_values(array_filter([
             $dusunRt ?: null,
             $desaKec ?: null,
             $kabupaten,
-            $provinsi,
         ]));
     }
 

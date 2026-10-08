@@ -17,8 +17,7 @@
             <div class="hidden">
                 @forelse($dokumen as $item)
                 @php
-                $regDesNomor = '474.1/' . ($item->nomor_urut ?? '-') . '/' . (auth()->user()->desa_id ?? '-') . '/' .
-                ($item->tahun ?? optional($item->tanggal_surat)->format('Y'));
+                $nomorSurat = $item->nomor_surat ?: 'Belum diisi';
                 @endphp
                 <div class="rounded-md border border-gray-200 bg-white p-3">
                     <p class="text-[11px] font-bold uppercase tracking-[1px] text-gray-500">Tanggal</p>
@@ -33,7 +32,7 @@
 
                     <p class="mt-3 text-[11px] font-bold uppercase tracking-[1px] text-gray-500">Nomor Surat</p>
                     <p class="mt-1 text-xs font-mono font-medium tracking-[.5px] text-gray-800">
-                        {{ $regDesNomor }}
+                        {{ $nomorSurat }}
                     </p>
 
                     <div class="mt-3 flex justify-end gap-2">
@@ -48,7 +47,8 @@
                             <span>Unduh</span>
                         </a>
                         <form method="POST" action="{{ route('layanan.pengajuan.destroy', $item) }}"
-                            onsubmit="return confirm('Yakin ingin menghapus surat ini?')">
+                            data-delete-title="Hapus dokumen surat ini?"
+                            data-delete-message="Dokumen surat yang dihapus tidak dapat dikembalikan.">
                             @csrf
                             @method('DELETE')
                             <button type="submit"
@@ -92,8 +92,7 @@
                     <tbody class="divide-y divide-gray-50">
                         @forelse($dokumen as $item)
                         @php
-                        $regDesNomor = '474.1/' . ($item->nomor_urut ?? '-') . '/' . (auth()->user()->desa_id ?? '-') .
-                        '/' . ($item->tahun ?? optional($item->tanggal_surat)->format('Y'));
+                        $nomorSurat = $item->nomor_surat ?: 'Belum diisi';
                         @endphp
                         <tr class="group transition hover:bg-gray-50/50">
                             <td class="whitespace-nowrap px-4 py-4 sm:px-4">
@@ -116,7 +115,7 @@
                             </td>
                             <td class="px-2 py-4 sm:px-4">
                                 <span class="text-md font-medium tracking-[.5px] text-gray-800">
-                                    {{ $regDesNomor }}
+                                    {{ $nomorSurat }}
                                 </span>
                             </td>
                             <td class="px-2 py-4 text-center sm:px-4">
@@ -132,7 +131,8 @@
                                         <span>Unduh</span>
                                     </a>
                                     <form method="POST" action="{{ route('layanan.pengajuan.destroy', $item) }}"
-                                        onsubmit="return confirm('Yakin ingin menghapus surat ini?')">
+                                        data-delete-title="Hapus dokumen surat ini?"
+                                        data-delete-message="Dokumen surat yang dihapus tidak dapat dikembalikan.">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"

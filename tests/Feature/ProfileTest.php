@@ -24,12 +24,13 @@ class ProfileTest extends TestCase
     public function test_profile_information_can_be_updated(): void
     {
         $user = User::factory()->create();
+        $originalName = $user->name;
 
         $response = $this
             ->actingAs($user)
             ->patch('/profile', [
-                'name' => 'Test User',
                 'email' => 'test@example.com',
+                'no_hp' => $user->no_hp,
             ]);
 
         $response
@@ -38,7 +39,7 @@ class ProfileTest extends TestCase
 
         $user->refresh();
 
-        $this->assertSame('Test User', $user->name);
+        $this->assertSame($originalName, $user->name);
         $this->assertSame('test@example.com', $user->email);
         $this->assertNull($user->email_verified_at);
     }
@@ -46,19 +47,47 @@ class ProfileTest extends TestCase
     public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
     {
         $user = User::factory()->create();
+        $originalName = $user->name;
 
         $response = $this
             ->actingAs($user)
             ->patch('/profile', [
-                'name' => 'Test User',
                 'email' => $user->email,
+                'no_hp' => $user->no_hp,
             ]);
 
         $response
             ->assertSessionHasNoErrors()
             ->assertRedirect('/profile');
 
-        $this->assertNotNull($user->refresh()->email_verified_at);
+        $user->refresh();
+        $this->assertSame($originalName, $user->name);
+        $this->assertNotNull($user->email_verified_at);
+    }
+
+    public function test_email_and_phone_can_be_updated_without_changing_the_name(): void
+    {
+        $user = User::factory()->create([
+            'name' => 'Existing User',
+            'no_hp' => '081234567890',
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/profile', [
+                'email' => 'updated@example.com',
+                'no_hp' => '081298765432',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/profile');
+
+        $user->refresh();
+
+        $this->assertSame('Existing User', $user->name);
+        $this->assertSame('updated@example.com', $user->email);
+        $this->assertSame('081298765432', $user->no_hp);
     }
 
     public function test_user_can_delete_their_account(): void

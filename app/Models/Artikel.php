@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Str;
 
 class Artikel extends Model
@@ -40,5 +41,10 @@ class Artikel extends Model
         }
 
         return $slug;
+    }
+
+    public function comments(): MorphMany
+    {
+        return $this->morphMany(ContentComment::class, 'commentable');
     }
 }
