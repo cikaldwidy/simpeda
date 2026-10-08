@@ -254,8 +254,8 @@
                     <img src="{{ asset('storage/'.$item->foto) }}"
                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 reveal-up">
 
-                    {{-- Hover overlay — nama & jabatan hanya muncul saat hover --}}
-                    <div class="absolute inset-0 bg-black
+                    {{-- Hover overlay — detail perangkat muncul saat hover --}}
+                    <div class="absolute inset-0 bg-black/70
                         flex flex-col justify-center items-center
                         opacity-0 group-hover:opacity-90
                         transition duration-300 text-white p-4">
@@ -267,6 +267,19 @@
                         <span class="text-sm opacity-80 capitalize mt-1">
                             {{ $item->jabatan }}
                         </span>
+                        <div class="mt-3 text-center">
+                            <p class="text-[10px] font-semibold uppercase tracking-wider text-orange-200">
+                                Tempat, Tanggal Lahir
+                            </p>
+                            <p class="mt-1 text-xs text-white/90">
+                                {{ $item->tempat_lahir ?: 'Tempat lahir belum diisi' }}
+                                @if($item->tanggal_lahir)
+                                    , {{ $item->tanggal_lahir->format('d-m-Y') }}
+                                @else
+                                    <span class="block text-white/70">Tanggal lahir belum diisi</span>
+                                @endif
+                            </p>
+                        </div>
                     </div>
                 </div>
                 @empty

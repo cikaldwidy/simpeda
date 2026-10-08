@@ -207,6 +207,10 @@ $penghasilanIbuLabel = $penghasilanIbu === 'lainnya'
     padding: 0;
 }
 
+.sign-table .sign-holder {
+    vertical-align: bottom;
+}
+
 .sign-gap {
     height: 48px;
 }
@@ -408,7 +412,7 @@ $penghasilanIbuLabel = $penghasilanIbu === 'lainnya'
 
     <table class="sign-table mt-20">
         <tr>
-            <td>
+            <td class="sign-holder">
                 <p>Pemegang Surat</p>
             </td>
             <td>

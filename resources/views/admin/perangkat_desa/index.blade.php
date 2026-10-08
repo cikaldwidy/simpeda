@@ -42,6 +42,9 @@
                                     Jabatan</th>
                                 <th
                                     class="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-[1px] text-white">
+                                    Tempat, Tanggal Lahir</th>
+                                <th
+                                    class="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-[1px] text-white">
                                     Urutan</th>
                                 <th
                                     class="whitespace-nowrap px-4 py-3 text-center text-xs font-bold uppercase tracking-[1px] text-white">
@@ -63,8 +66,15 @@
                                 <td class="px-4 py-4 text-sm font-semibold tracking-[.5px] text-gray-800">
                                     {{ $item->nama }}</td>
                                 <td class="px-4 py-4 text-sm tracking-[.5px] text-gray-700">{{ $item->jabatan }}</td>
-                                <td class="px-4 py-4 text-sm font-medium tracking-[.5px] text-gray-800">
-                                    {{ $item->urutan }}</td>
+                                    <td class="px-4 py-4 text-sm tracking-[.5px] text-gray-700">
+                                        @if($item->tempat_lahir || $item->tanggal_lahir)
+                                            {{ $item->tempat_lahir }}{{ $item->tempat_lahir && $item->tanggal_lahir ? ', ' : '' }}{{ $item->tanggal_lahir?->format('d-m-Y') }}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-4 text-sm font-medium tracking-[.5px] text-gray-800">
+                                        {{ $item->urutan }}</td>
                                 <td class="px-4 py-4 text-center">
                                     <div class="flex items-center justify-center gap-2">
                                         <button type="button" data-open-modal="editPerangkatModal-{{ $item->id }}"
@@ -89,7 +99,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="px-4 py-12 text-center text-gray-500">Belum ada data perangkat
+                                <td colspan="7" class="px-4 py-12 text-center text-gray-500">Belum ada data perangkat
                                     desa.</td>
                             </tr>
                             @endforelse
@@ -123,6 +133,16 @@
                     <label class="mb-1 block text-sm font-semibold text-slate-700">Jabatan</label>
                     <input type="text" name="jabatan" value="{{ old('jabatan') }}"
                         class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm" required>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-semibold text-slate-700">Tempat Lahir</label>
+                    <input type="text" name="tempat_lahir" value="{{ old('tempat_lahir') }}"
+                        class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-semibold text-slate-700">Tanggal Lahir</label>
+                    <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}"
+                        class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm">
                 </div>
                 <div>
                     <label class="mb-1 block text-sm font-semibold text-slate-700">Foto</label>
@@ -169,6 +189,16 @@
                     <label class="mb-1 block text-sm font-semibold text-slate-700">Jabatan</label>
                     <input type="text" name="jabatan" value="{{ $item->jabatan }}"
                         class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm" required>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-semibold text-slate-700">Tempat Lahir</label>
+                    <input type="text" name="tempat_lahir" value="{{ $item->tempat_lahir }}"
+                        class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-semibold text-slate-700">Tanggal Lahir</label>
+                    <input type="date" name="tanggal_lahir" value="{{ $item->tanggal_lahir?->format('Y-m-d') }}"
+                        class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm">
                 </div>
                 <div>
                     <label class="mb-1 block text-sm font-semibold text-slate-700">Foto Saat Ini</label>

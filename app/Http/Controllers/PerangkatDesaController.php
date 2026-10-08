@@ -24,6 +24,8 @@ class PerangkatDesaController extends Controller
         $request->validate([
             'nama' => 'required',
             'jabatan' => 'required',
+            'tempat_lahir' => 'nullable|string|max:255',
+            'tanggal_lahir' => 'nullable|date',
             'foto' => 'required|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
@@ -32,6 +34,8 @@ class PerangkatDesaController extends Controller
         PerangkatDesa::create([
             'nama' => $request->nama,
             'jabatan' => $request->jabatan,
+            'tempat_lahir' => $request->tempat_lahir,
+            'tanggal_lahir' => $request->tanggal_lahir,
             'foto' => $foto,
             'urutan' => $request->urutan ?? 0
         ]);
@@ -51,7 +55,9 @@ class PerangkatDesaController extends Controller
 
         $request->validate([
             'nama' => 'required',
-            'jabatan' => 'required'
+            'jabatan' => 'required',
+            'tempat_lahir' => 'nullable|string|max:255',
+            'tanggal_lahir' => 'nullable|date',
         ]);
 
         if ($request->hasFile('foto')) {
@@ -62,6 +68,8 @@ class PerangkatDesaController extends Controller
         $perangkat->update([
             'nama' => $request->nama,
             'jabatan' => $request->jabatan,
+            'tempat_lahir' => $request->tempat_lahir,
+            'tanggal_lahir' => $request->tanggal_lahir,
             'urutan' => $request->urutan ?? 0
         ]);
 
